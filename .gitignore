@@ -1,0 +1,16 @@
+node_modules/
+.env*
+!.env.example
+**/.env*
+!**/.env.example
+!src/app/.env
+!src/core/CoreHost/.env
+.svelte-kit/
+out/
+release/
+dist/
+coverage/
+logs/
+*.log
+[Bb]in/
+[Oo]bj/
