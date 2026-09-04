@@ -1,0 +1,10 @@
+// Auto-injected into every SCSS entry by the `additionalData` preprocessor option in
+// svelte.config.js and vite.config.mts, so components use these without importing.
+// Keep this file rule-free: anything emitting CSS here is duplicated into every component.
+@use "sass:string";
+
+// Applies alpha to a CSS custom property colour, which plain rgba() cannot do because
+// the token holds a full rgb() value rather than bare channels.
+@function rgbaa($color, $alpha) {
+	@return string.unquote("rgb(from #{$color} r g b / #{$alpha})");
+}
