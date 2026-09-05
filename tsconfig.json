@@ -1,0 +1,32 @@
+{
+  "extends": "./.svelte-kit/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["node", "vite/client"]
+  },
+  "include": [
+    ".svelte-kit/ambient.d.ts",
+    ".svelte-kit/types/**/*.d.ts",
+    "electron.vite.config.ts",
+    "svelte.config.js",
+    "src/app/**/*.ts",
+    "src/app/**/*.svelte",
+    "packages/shared/src/**/*.ts"
+  ],
+  "exclude": [
+    "packages/shared/src/gameServerListQuery.test.ts"
+  ]
+}
