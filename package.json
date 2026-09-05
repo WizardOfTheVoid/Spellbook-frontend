@@ -1,0 +1,137 @@
+{
+  "name": "spellbook",
+  "version": "1.0.19",
+  "description": "Client-side Chivalry 2 admin overlay.",
+  "author": "Magic Trashcan",
+  "private": true,
+  "main": "out/main/index.js",
+  "engines": {
+    "node": ">=22.21.1 <25"
+  },
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n core,app \"npm run core:dev\" \"wait-on tcp:127.0.0.1:48125 && npm run app:dev\"",
+    "test": "npm run app:test && npm run core:test",
+    "check": "npm run app:check && npm run core:build",
+    "build": "npm run core:build && npm run app:build",
+    "core:dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/core-dev.ps1",
+    "core:build": "dotnet build src/core/CoreHost/CoreHost.csproj",
+    "core:publish": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publishCore.ps1",
+    "core:test": "dotnet run --project src/core/CoreHost.Tests/CoreHost.Tests.csproj",
+    "config:write": "node scripts/writePackagedConfig.mjs",
+    "preapp:dev": "svelte-kit sync",
+    "app:dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/app-dev.ps1",
+    "app:icons": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generateAppIcons.ps1",
+    "preapp:test": "svelte-kit sync && tsx --test src/app/main/config/packagedAppConfig.test.ts src/app/main/core/corePort.test.ts src/app/main/core/coreProcessController.test.ts src/app/main/core/coreRuntimePath.test.ts src/app/main/services/applicationStartup.test.ts src/app/main/services/gameActivityConfig.test.ts src/app/main/services/gameCommandEligibility.test.ts src/app/main/window/rendererRoute.test.ts src/app/renderer/src/lib/auth/startupState.test.ts src/app/renderer/src/lib/components/account/teamPanelNavigation.test.ts src/app/renderer/src/lib/components/admin/accountStatus.test.ts src/app/renderer/src/lib/components/admin/adminUserBan.test.ts src/app/renderer/src/lib/components/app/lazyPanelModules.test.ts src/app/renderer/src/lib/components/app/operatorUiPresentation.test.ts src/app/renderer/src/lib/components/dashboard/dashboardPresentation.test.ts src/app/renderer/src/lib/components/dashboard/dashboardState.test.ts src/app/renderer/src/lib/components/dashboard/tabbedList.test.ts src/app/renderer/src/lib/components/profiles/profileFormControls.test.ts src/app/renderer/src/lib/stores/gameProcessAvailabilityStore.test.ts src/app/renderer/src/lib/utils/dashboardApi.test.ts src/app/renderer/src/lib/utils/apiResult.test.ts src/app/renderer/src/lib/utils/archiveRequests.test.ts src/app/renderer/src/lib/utils/cacheWarmup.test.ts src/app/renderer/src/lib/utils/gameProcessActions.test.ts src/app/renderer/src/lib/utils/serverArchive.test.ts src/app/renderer/src/lib/utils/serverRowStats.test.ts",
+    "app:test": "tsx --test src/app/shared/messageTemplates.test.ts packages/shared/src/gameServerListQuery.test.ts packages/shared/src/notificationCallbacks.test.ts packages/shared/src/playerNotes.test.ts packages/shared/src/appIdentity.test.ts src/app/main/appEnv.test.ts src/app/main/appProtocol.test.ts src/app/main/appBranding.test.ts src/app/main/api/core-request-payload-factory.test.ts src/app/main/api/httpClients.test.ts src/app/main/health/appHealthService.test.ts src/app/main/ipc/auth-ipc-handlers.test.ts src/app/main/ipc/core-ipc-handlers.test.ts src/app/main/ipc/moderation-ipc-handlers.test.ts src/app/main/ipc/overlay-ipc-handlers.test.ts src/app/main/ipc/sentinel-ipc-handlers.test.ts src/app/main/ipc/server-ipc-handlers.test.ts src/app/main/parsers/list-players-parser.test.ts src/app/main/services/anti-afk-service.test.ts src/app/main/services/antiAfkConfig.test.ts src/app/main/services/notificationPollingConfig.test.ts src/app/main/services/app-settings-service.test.ts src/app/main/services/currentGameSnapshotStore.test.ts src/app/main/services/listPlayersPoller.test.ts src/app/main/services/mainRuntimeCoordinator.test.ts src/app/main/services/mainRuntimeWiring.test.ts src/app/main/services/overlay-activity-guard.test.ts src/app/main/services/list-players-service.test.ts src/app/main/services/runtimeQuitGuard.test.ts src/app/main/services/sentinelService.test.ts src/app/main/services/wantedRuntimeConfig.test.ts src/app/main/services/wantedWorkClient.test.ts src/app/main/services/wantedMessageResolver.test.ts src/app/main/services/wantedCoreExecutor.test.ts src/app/main/services/wantedWorker.test.ts src/app/main/window/appIconPath.test.ts src/app/main/window/appIconAsset.test.ts src/app/main/window/appTrayController.test.ts src/app/main/window/anti-afk-status-window-controller.test.ts src/app/main/window/sentinelBorderWindowController.test.ts src/app/main/window/overlay-window-controller.test.ts src/app/main/window/overlay-window-event-binder.test.ts src/app/preload/coreBridge.test.ts src/app/preload/dashboardBridge.test.ts src/app/renderer/src/lib/auth/user.test.ts src/app/renderer/src/lib/core.test.ts src/app/renderer/src/lib/components/account/discordTeamConnection.test.ts src/app/renderer/src/lib/components/admin/adminNavigation.test.ts src/app/renderer/src/lib/components/admin/auditLogsController.test.ts src/app/renderer/src/lib/components/admin/wantedAdminController.test.ts src/app/renderer/src/lib/components/app/panelScrollLayout.test.ts src/app/renderer/src/lib/components/navigation/accountInfinityMenu.test.ts src/app/renderer/src/lib/components/navigation/navigationEntries.test.ts src/app/renderer/src/lib/components/players/playerActionInfinityMenu.test.ts src/app/renderer/src/lib/components/players/playerDetailNavigation.test.ts src/app/renderer/src/lib/components/players/playerInfinityMenu.test.ts src/app/renderer/src/lib/components/players/wantedDetailState.test.ts src/app/renderer/src/lib/components/players/wantedPlayerRow.test.ts src/app/renderer/src/lib/components/servers/serverInfinityMenu.test.ts src/app/renderer/src/lib/components/ui/infinityMenu.test.ts src/app/renderer/src/lib/global/sfx/delegatedSfx.test.ts src/app/renderer/src/lib/global/sfx/overlayVisibilitySfx.test.ts src/app/renderer/src/lib/global/sfx/sfx-settings.test.ts src/app/renderer/src/lib/notifications/notificationEvents.test.ts src/app/renderer/src/lib/notifications/notificationInbox.test.ts src/app/renderer/src/lib/notifications/notificationInboxSession.test.ts src/app/renderer/src/lib/notifications/notificationNavigation.test.ts src/app/renderer/src/lib/notifications/notificationPresentation.test.ts src/app/renderer/src/lib/notifications/notificationQueue.test.ts src/app/renderer/src/lib/utils/auditLogsApi.test.ts src/app/renderer/src/lib/utils/dbPlayers.test.ts src/app/renderer/src/lib/utils/displayNames.test.ts src/app/renderer/src/lib/utils/dom.test.ts src/app/renderer/src/lib/utils/gameServersApi.test.ts src/app/renderer/src/lib/utils/healthUtils.test.ts src/app/renderer/src/lib/utils/messageTags.test.ts src/app/renderer/src/lib/utils/overlayPosition.test.ts src/app/renderer/src/lib/utils/quickActions.test.ts src/app/renderer/src/lib/utils/quickActionUi.test.ts src/app/renderer/src/lib/utils/playerNotes.test.ts src/app/renderer/src/lib/utils/playerNotesApi.test.ts src/app/renderer/src/lib/utils/playerNoteEditor.test.ts src/app/renderer/src/lib/utils/playerActions.test.ts src/app/renderer/src/lib/utils/playerActionsApi.test.ts src/app/renderer/src/lib/utils/unbanPlayer.test.ts src/app/renderer/src/lib/utils/playerArchive.test.ts src/app/renderer/src/lib/utils/playerDetailItems.test.ts src/app/renderer/src/lib/utils/playerProfileLoader.test.ts src/app/renderer/src/lib/utils/playerRowStats.test.ts src/app/renderer/src/lib/utils/playerStateData.test.ts src/app/renderer/src/lib/utils/playerUtils.test.ts src/app/renderer/src/lib/utils/profileActions.test.ts src/app/renderer/src/lib/utils/profileCommandRunner.test.ts src/app/renderer/src/lib/utils/profileManagement.test.ts src/app/renderer/src/lib/utils/serverVariables.test.ts src/app/renderer/src/lib/utils/serverPlayerPolling.test.ts src/app/renderer/src/lib/utils/serverPlayersApi.test.ts src/app/renderer/src/lib/utils/tones.test.ts src/app/renderer/src/lib/utils/tooltip.test.ts src/app/renderer/src/lib/utils/wantedActionsApi.test.ts src/app/renderer/src/lib/utils/wantedPlayersApi.test.ts",
+    "postapp:test": "tsx --test src/app/main/ipc/discord-install-ipc-handlers.test.ts src/app/main/services/appUpdateService.test.ts src/app/preload/discordInstallBridge.test.ts src/app/renderer/src/lib/utils/appUpdatePolling.test.ts src/app/renderer/src/lib/utils/celebrate.test.ts",
+    "app:check": "svelte-kit sync && svelte-check --tsconfig tsconfig.json --config svelte.config.js",
+    "app:renderer:build": "vite build --config src/app/renderer/vite.config.mts",
+    "app:renderer:verify": "node scripts/verifyRendererRoutes.mjs",
+    "app:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/app-build.ps1",
+    "app:dist": "npm run config:write && npm run core:publish && npm run app:build && electron-builder --win nsis --x64",
+    "dist:verify": "node scripts/verifyDistribution.mjs",
+    "dist:checksums": "node scripts/checksumRelease.mjs",
+    "version:check": "node scripts/checkProductVersion.mjs",
+    "verify:public": "node scripts/publicPolicy.mjs"
+  },
+  "build": {
+    "appId": "com.magictrashcan.spellbook",
+    "productName": "SpellBook",
+    "copyright": "Copyright © 2026 Magic Trashcan",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "artifactName": "SpellBook-Setup-${version}.${ext}",
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "executableName": "SpellBook",
+      "icon": "icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "extraResources": [
+      {
+        "from": "build/icon.ico",
+        "to": "icon.ico"
+      },
+      {
+        "from": "dist/core/win-x64",
+        "to": "core",
+        "filter": [
+          "**/*",
+          "!**/.env*"
+        ]
+      },
+      {
+        "from": "src/app/.env",
+        "to": "app/.env"
+      },
+      {
+        "from": "src/core/CoreHost/.env",
+        "to": "core/.env"
+      },
+      {
+        "from": "LICENSE.md",
+        "to": "LICENSE.md"
+      },
+      {
+        "from": "NOTICE.md",
+        "to": "NOTICE.md"
+      },
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "from": "dist/config/app-config.json",
+        "to": "app-config.json"
+      }
+    ]
+  },
+  "dependencies": {
+    "@electron-toolkit/utils": "^4.0.0",
+    "@tiptap/core": "3.30.5",
+    "@tiptap/pm": "3.30.5",
+    "@tiptap/starter-kit": "3.30.5",
+    "@tiptap/suggestion": "3.30.5",
+    "canvas-confetti": "^1.9.4",
+    "dotenv": "^17.4.2",
+    "openapi-fetch": "^0.17.0",
+    "uisfx": "^0.4.0"
+  },
+  "devDependencies": {
+    "@electron/asar": "^3.4.1",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.69.1",
+    "@sveltejs/vite-plugin-svelte": "6.2.4",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^22.18.0",
+    "concurrently": "^9.2.0",
+    "electron": "44.1.1",
+    "electron-builder": "26.15.3",
+    "electron-vite": "5.0.0",
+    "sass": "^1.101.0",
+    "svelte": "^5.56.4",
+    "svelte-check": "^4.7.1",
+    "tsx": "^4.23.0",
+    "typescript": "^5.5.4",
+    "vite": "7.3.6",
+    "wait-on": "^7.2.0"
+  }
+}
