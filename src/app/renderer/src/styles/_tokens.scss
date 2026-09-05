@@ -1,0 +1,92 @@
+// Single source of truth for overlay design tokens. Values mirror the pre-token
+// hard-coded CSS so introducing this file is visually neutral.
+
+:root {
+	--color-background: rgba(5, 13, 21, 0.9);
+	
+	--white: rgb(255 255 255);
+	--black: rgb(0 0 0);
+
+	--color-dark-primary: #050D15;
+	--color-dark-secondary: rgba(50, 72, 97, 0.4);
+	--color-dark-tertiary: rgba(50, 72, 97, 0.7);
+
+	--color-light-primary: rgb(237 236 249);
+	--color-light-secondary: rgb(196 211 225);
+	--color-light-tertiary: rgb(112 138 167);
+
+	--color-accent-primary: rgb(156 95 255);
+	--color-accent-secondary: rgb(0 255 148);
+	--color-accent-tertiary: rgb(255 226 150);
+	--color-accent-quaternary: rgb(255 61 154);
+
+	--color-scrollbar-thumb: var(--color-dark-secondary);
+	--color-scrollbar-track: #030a0f;
+
+	--gutter: 15px;
+
+	--gutter-sm: calc(var(--gutter) / 2);
+	--gutter-md: var(--gutter);
+	--gutter-lg: calc(var(--gutter) * 2);
+
+	// Radius
+	--radius: 12px;
+	--radius-xl: 18px;
+
+	// Typography
+	--font-family-base: "Rubik", Bahnschrift, "Aptos Display", "Segoe UI Variable", sans-serif;
+
+	--font-size-xs: 12px;
+	--font-size-md: 14px;
+	--font-size-lg: 16px;
+	--font-size-xl: 18px;
+	--font-size-2xl: 20px;
+	--font-size-3xl: 23px;
+	--font-size-4xl: 26px;
+
+	--font-weight-light: 300;
+	--font-weight: 400;
+	--font-weight-medium: 500;
+	--font-weight-bold: 600;
+
+	--shadow: 0 20px 65px rgba(5, 13, 21, 0.6);
+
+	// Stacking order
+	--z-backdrop: 0;
+	--z-ambient: 1;
+	--z-panel: 2;
+	--z-popover: 30;
+	--z-tooltip: 40;
+	--z-notification: 50;
+
+	// Motion
+	--motion-fast: 420ms;
+	--motion-base: 600ms;
+	--motion-slow: 850ms;
+	--motion-ease: cubic-bezier(0, 0, 0, 1);
+	--easing: var(--motion-ease);
+
+	// Control sizing
+	--control-height-sm: 40px;
+	--control-height-md: 45px;
+	--control-height-lg: 60px;
+	--select-menu-max-height: 240px;
+
+	--icon-size-sm: 10px;
+	--icon-size-md: 12px;
+	--icon-size-lg: 16px;
+	--icon-size-xlg: 18px;
+	--icon-size-xxl: 24px;
+	
+	--avatar-size: 42px;
+
+	--sidebar-width: 540px;
+	--active-sidebar-width: var(--sidebar-width);
+	--sidebar-motion-duration: 650ms;
+	--quick-actions-offset-x: 0px;
+	--nav-width: 88px;
+
+	// Overridden at the responsive breakpoint; scoped component styles read it.
+	--panel-padding: var(--gutter-lg);
+	--backdrop-blur: 8px;
+}
