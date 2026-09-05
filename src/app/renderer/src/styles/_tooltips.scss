@@ -1,0 +1,35 @@
+.tooltip-layer {
+  position: fixed;
+  z-index: 40;
+  max-width: min(260px, calc(100vw - 24px));
+  padding: 9px 11px;
+  border: 1px solid rgba(232, 202, 118, 0.32);
+  border-radius: 10px;
+  color: var(--color-light-primary);
+  background: rgba(4, 14, 21, 0.96);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.42);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+  white-space: pre-line;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.tooltip-layer--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tooltip-layer--emphasized span {
+  margin-right: 0.35em;
+  font-weight: var(--font-weight);
+}
+
+.tooltip-layer--emphasized strong {
+  font-weight: var(--font-weight-bold);
+}
