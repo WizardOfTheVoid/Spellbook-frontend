@@ -1,0 +1,524 @@
+<script lang="ts">
+	import { navigation, rememberNavigation, navigateBack, navigateForward } from "$lib/navigation/navigation"
+	import { onDestroy, onMount } from "svelte";
+	import { getOverlayApi, getServerApi } from "$lib/core";
+	import { SnapshotLookupController } from "$lib/snapshot/snapshotLookupController";
+	import type { PlayerState } from "$lib/types/playerState";
+	import { loadSettings } from "$lib/settings/settings-store";
+	import { hasFocusedEditableElement } from "$lib/utils/dom";
+	import {
+		authState,
+		listenForSessionChanges,
+		loadSession,
+		needsPlayfabId,
+		logout,
+		startupState,
+	} from "$lib/auth/user";
+	import type { ProfileOwner } from "$lib/core";
+	import type { ActivePage, LoadState, ServerSummary } from "$lib/types/ui";
+	import AmbientStage from "$lib/components/app/AmbientStage.svelte";
+	import QuickActions from "$lib/components/app/QuickActions.svelte";
+	import NavRail from "$lib/components/navigation/NavRail.svelte";
+	import OverlayContent from "$lib/components/app/OverlayContent.svelte";
+	import AuthScreen from "$lib/components/auth/AuthScreen.svelte";
+	import StartupOverlay from "$lib/components/auth/StartupOverlay.svelte"
+	import {
+		createNotificationNavigationIntent,
+		createNotificationNavigationLifecycle,
+		createNotificationNavigationReset,
+		createTeamNavigationHandoff,
+		openNotificationTarget,
+	} from "$lib/notifications/notificationNavigation"
+	import { createNotificationInbox } from "$lib/notifications/notificationInbox"
+	import { createNotificationInboxSession } from "$lib/notifications/notificationInboxSession"
+	import { notificationEvents, notify, notifyError } from "$lib/notifications/notificationEvents"
+	import { presentNotificationArrival } from "$lib/notifications/notificationPresentation"
+	import { playCustomSFX } from "$lib/global/sfx"
+	import { createOverlayVisibilitySfx } from "$lib/global/sfx/overlayVisibilitySfx"
+	import { fetchPlayerProfile } from "$lib/utils/serverProfilesApi"
+	import { createDbPlayerState } from "$lib/utils/playerStateData"
+	import type { NotificationRecord } from "@spellbook/shared/notifications"
+	import { schedulePanelPreload } from "$lib/components/app/lazyPanelModules"
+	import { warmAuthenticatedCaches } from "$lib/utils/cacheWarmup"
+	import {
+		stopGameProcessAvailability,
+		syncGameProcessAvailability,
+	} from "$lib/stores/gameProcessAvailabilityStore"
+	import { playerNotesNavigationTarget } from "$lib/components/players/playerDetailNavigation"
+	import { startAppUpdatePolling } from "$lib/utils/appUpdatePolling"
+	import { unsavedChanges } from "$lib/utils/unsavedChanges"
+	import { pendingTeamRequests } from "$lib/stores/pendingTeamRequests"
+
+	let activePage: ActivePage = "dashboard";
+	let selectedPlayer: PlayerState | null = null;
+	let selectedPlayerSubpage: "notes" | null = null;
+	let overlayVisible = false;
+	const syncOverlayVisibilitySfx = createOverlayVisibilitySfx(cue => SFX.play(cue))
+	let frameReady = false;
+	let revealTimer: number | null = null;
+	let serverName = "Current game server";
+	let serverExternalId: string | null = null;
+	let serverAddress: string | null = null;
+	let serverDisplayName = "Current game server";
+	let playerState: LoadState = "idle";
+	let selectedProfileId: number | null = null;
+	let selectedOwner: ProfileOwner | null = null;
+	let requestedTeamView: `requests` | null = null
+	let requestedTeamId: number | null = null
+	let requestedTeamRequestId: number | null = null
+	let requestedYoursRequestId: number | null = null
+	let serverNavigationSequence = 0
+	let warmedUserId: number | null = null
+	let latestVersion: string | null = null
+	let cancelCacheWarmup: () => void = () => {}
+	const teamNavigation = createTeamNavigationHandoff((request) => {
+		requestedTeamView = request?.teamView ?? null
+		requestedTeamId = request?.teamId ?? null
+		requestedTeamRequestId = request?.requestId ?? null
+	})
+	const notificationNavigationIntent = createNotificationNavigationIntent()
+	const resetNotificationNavigation = createNotificationNavigationReset(
+		notificationNavigationIntent,
+		teamNavigation.reset,
+	)
+	const notificationNavigationLifecycle = createNotificationNavigationLifecycle(
+		resetNotificationNavigation,
+		() => {
+			selectedPlayer = null
+			selectedPlayerSubpage = null
+			notificationEvents.clear()
+		},
+	)
+	const notificationInboxSession = createNotificationInboxSession(
+		async () => createNotificationInbox(
+			getServerApi(),
+			await getOverlayApi().notificationPollMs(),
+			(notification, context) => presentNotificationArrival(notification, {
+				isCurrent: context.isCurrent,
+				notify,
+				playSfx: playCustomSFX,
+				setRead: notificationInboxSession.setRead,
+				open: openNotification,
+			}),
+		),
+		(error) => notifyError(
+			error instanceof Error ? error.message : `Notification inbox failed to start.`,
+			{ dedupeKey: `notifications:start` },
+		),
+		notificationNavigationLifecycle.reset,
+	)
+
+	rememberNavigation(`app`, () => ({ activePage, selectedPlayer, selectedPlayerSubpage, selectedOwner, selectedProfileId }), state => {
+		resetNotificationNavigation()
+		requestedYoursRequestId = null
+		activePage = (state.activePage === `admin` || state.activePage === `analysis`) && !$authState.user?.isSuperadmin
+			? `dashboard` : state.activePage
+		selectedPlayer = state.selectedPlayer
+		selectedPlayerSubpage = state.selectedPlayerSubpage
+		selectedOwner = state.selectedOwner
+		selectedProfileId = state.selectedProfileId
+	}, state => [state.activePage, state.selectedPlayer?.playfabId, state.selectedPlayerSubpage, state.selectedOwner, state.selectedProfileId])
+	let navigationUserId: number | null = null
+	$: if (navigationUserId !== appUserId) {
+		navigationUserId = appUserId
+		navigation.reset()
+	}
+
+	$: if ($authState.user && !selectedOwner) {
+		selectedOwner = { type: "user", id: $authState.user.id };
+	}
+
+	$: scheduleReveal(overlayVisible);
+	$: profileRequired = needsPlayfabId($authState.user)
+	$: if (profileRequired && (activePage !== `account` || selectedPlayer)) applyPage(`account`)
+	$: appUserId = $authState.user?.isActive && $authState.user.onboardingComplete && !profileRequired
+		? $authState.user.id : null
+	$: void notificationInboxSession.sync(
+		appUserId,
+	)
+	$: pendingTeamRequests.syncUser(appUserId)
+	$: syncGameProcessAvailability(
+		$startupState.phase === "authenticated"
+			&& appUserId !== null
+			&& overlayVisible,
+	)
+	$: if (appUserId !== warmedUserId) {
+		cancelCacheWarmup()
+		warmedUserId = appUserId
+		if (warmedUserId !== null && typeof window !== "undefined") {
+			cancelCacheWarmup = schedulePanelPreload(
+				window,
+				() => warmAuthenticatedCaches(getServerApi()),
+			)
+		}
+	}
+
+	onMount(() => {
+		let unsubscribeOverlayVisibility: (() => void) | undefined;
+		const publishTextInputState = (target: EventTarget | null): void => {
+			const element = target instanceof Element ? target : null;
+			try {
+				getOverlayApi().setTextInputActive(hasFocusedEditableElement(element));
+			} catch {
+				// Browser-only development has no Electron preload bridge.
+			}
+		};
+		const handleFocusIn = (event: FocusEvent) =>
+			publishTextInputState(event.target);
+		const handleFocusOut = (event: FocusEvent) =>
+			publishTextInputState(event.relatedTarget);
+		const unsubscribeAuth = listenForSessionChanges();
+		const stopUpdatePolling = startAppUpdatePolling(
+			() => getOverlayApi().checkForUpdate(),
+			version => { latestVersion = version },
+			window,
+		)
+
+		void loadSettings();
+		void loadSession();
+		document.addEventListener(`focusin`, handleFocusIn);
+		document.addEventListener(`focusout`, handleFocusOut);
+		publishTextInputState(document.activeElement);
+		void initializeOverlayVisibility((unsubscribe) => {
+			unsubscribeOverlayVisibility = unsubscribe;
+		});
+
+		const unsubscribeSnapshotLookup = listenForSnapshotLookups();
+		const stopHistory = window.chivOverlay?.onHistoryNavigate?.(direction => {
+			if (direction === `back`) navigateBack()
+			else navigateForward()
+		})
+
+		return () => {
+			document.removeEventListener(`focusin`, handleFocusIn);
+			document.removeEventListener(`focusout`, handleFocusOut);
+			publishTextInputState(null);
+			unsubscribeOverlayVisibility?.();
+			unsubscribeSnapshotLookup?.();
+			stopHistory?.()
+			unsubscribeAuth();
+			stopUpdatePolling()
+		};
+	});
+
+	onDestroy(() => {
+		clearRevealTimer()
+		cancelCacheWarmup()
+		notificationInboxSession.stop()
+		stopGameProcessAvailability()
+		pendingTeamRequests.syncUser(null)
+	})
+
+	function listenForSnapshotLookups(): (() => void) | undefined {
+		try {
+			return new SnapshotLookupController(showPlayer).listen();
+		} catch {
+			return undefined;
+		}
+	}
+
+	async function showPlayer(player: PlayerState): Promise<void> {
+		await navigation.visit(async () => {
+			if (profileRequired) return
+			if (!(await unsavedChanges.canLeave())) return
+			resetNotificationNavigation()
+			activePage = "server";
+			selectedProfileId = null;
+			selectedPlayer = player;
+			selectedPlayerSubpage = null;
+		})
+	}
+
+	async function selectPage(page: ActivePage): Promise<boolean> {
+		return navigation.visit(async () => {
+			if (profileRequired && page !== `account`) return false
+			if (page !== activePage && !(await unsavedChanges.canLeave())) return false
+			resetNotificationNavigation()
+			return applyPage(page)
+		})
+	}
+
+	async function openYourServers(): Promise<void> {
+		await navigation.visit(async () => {
+			if (profileRequired || !(await unsavedChanges.canLeave())) return
+			resetNotificationNavigation()
+			if (!applyPage(`servers`)) return
+			requestedYoursRequestId = ++serverNavigationSequence
+		})
+	}
+
+	async function openTeam(teamId: number): Promise<void> {
+		await navigation.visit(async () => {
+			if (!await selectPage(`teams`)) return
+			try {
+				await teamNavigation.request(teamId)
+			} catch (error) {
+				notifyError(error instanceof Error ? error.message : `Team could not be opened.`)
+			}
+		})
+	}
+
+	function handleYoursRequest(requestId: number): void {
+		if (requestedYoursRequestId === requestId) requestedYoursRequestId = null
+	}
+
+	function applyPage(page: ActivePage): boolean {
+		if ((page === `admin` || page === `analysis`) && !$authState.user?.isSuperadmin) return false
+		if (page !== `servers`) requestedYoursRequestId = null
+		activePage = page;
+		selectedPlayer = null;
+		selectedPlayerSubpage = null;
+		if (page !== "profiles") selectedProfileId = null;
+		return true
+	}
+
+	async function openNotification(notification: NotificationRecord): Promise<void> {
+		await navigation.visit(async () => {
+			if (!(await unsavedChanges.canLeave())) return
+			const uri = notification.callback?.uri ?? ""
+			resetNotificationNavigation()
+			await openNotificationTarget(uri, {
+				selectPage: applyPage,
+				selectTeam: teamNavigation.request,
+				openWantedPlayer: async (playfabId) => {
+					await notificationNavigationIntent.run(
+						() => fetchPlayerProfile(playfabId),
+						(profile) => { selectedPlayer = createDbPlayerState(profile.player) },
+					)
+				},
+				openPlayerNotes: async (playfabId) => {
+					await notificationNavigationIntent.run(
+						() => fetchPlayerProfile(playfabId),
+						(profile) => {
+							selectedPlayer = createDbPlayerState(profile.player)
+							selectedPlayerSubpage = "notes"
+						},
+					)
+				},
+				invalid: () => {
+					notifyError("Notification target could not be opened.", {
+						dedupeKey: `notification:${notification.id}:callback`,
+					})
+				},
+			})
+		})
+	}
+
+	async function openProfile(profileId: number, owner?: ProfileOwner): Promise<void> {
+		await navigation.visit(async () => {
+			if (!(await unsavedChanges.canLeave())) return
+			resetNotificationNavigation()
+			if (owner) selectedOwner = owner;
+			activePage = "profiles";
+			selectedPlayer = null;
+			selectedPlayerSubpage = null;
+			selectedProfileId = profileId;
+		})
+	}
+
+	function selectPlayer(player: PlayerState | null): void {
+		void navigation.visit(() => {
+			resetNotificationNavigation()
+			selectedPlayer = player
+			selectedPlayerSubpage = null
+		})
+	}
+
+	async function openPlayerProfile(player: PlayerState): Promise<void> {
+		await navigation.visit(async () => {
+			if (!(await unsavedChanges.canLeave())) return
+			resetNotificationNavigation()
+			activePage = "players"
+			selectedPlayer = player
+			selectedPlayerSubpage = null
+		})
+	}
+
+	async function openPlayerNotes(player: PlayerState): Promise<void> {
+		await navigation.visit(async () => {
+			if (!(await unsavedChanges.canLeave())) return
+			resetNotificationNavigation()
+			const target = playerNotesNavigationTarget(player)
+			activePage = target.page
+			selectedPlayer = target.player
+			selectedPlayerSubpage = target.subpage
+		})
+	}
+
+	function selectProfile(profileId: number | null): void {
+		void navigation.visit(() => {
+			resetNotificationNavigation()
+			selectedProfileId = profileId
+		})
+	}
+
+	async function manageTeamProfiles(teamId: number): Promise<void> {
+		await navigation.visit(async () => {
+			if (!await selectPage(`profiles`)) return
+			selectedOwner = { type: `team`, id: teamId }
+			selectedProfileId = null
+		})
+	}
+
+	function selectOwner(owner: ProfileOwner): void {
+		void navigation.visit(() => {
+			resetNotificationNavigation()
+			selectedOwner = owner
+		})
+	}
+
+	async function initializeOverlayVisibility(
+		setUnsubscribe: (unsubscribe: () => void) => void,
+	): Promise<void> {
+		try {
+			const overlayApi = getOverlayApi();
+			setOverlayVisibility(await overlayApi.isVisible());
+			setUnsubscribe(
+				overlayApi.onVisibilityChange(setOverlayVisibility),
+			);
+		} catch {
+			setOverlayVisibility(document.visibilityState === "visible");
+		}
+	}
+
+	function setOverlayVisibility(visible: boolean): void {
+		overlayVisible = visible
+		syncOverlayVisibilitySfx(visible)
+	}
+
+	async function hideOverlay(): Promise<void> {
+		try {
+			await getOverlayApi().hide();
+		} catch {
+			setOverlayVisibility(false);
+		}
+	}
+
+	async function openUpdatePage(): Promise<void> {
+		try {
+			await getOverlayApi().openUpdatePage()
+		} catch {
+			notifyError(`The SpellBook update page could not be opened.`, {
+				dedupeKey: `update:open`,
+			})
+		}
+	}
+
+	async function signOut(): Promise<void> {
+		if (await unsavedChanges.canLeave()) await notificationNavigationLifecycle.leave(logout)
+	}
+
+	function updateServerSummary(summary: ServerSummary): void {
+		serverExternalId = summary.serverExternalId;
+		serverName = summary.serverName;
+		serverAddress = summary.serverAddress;
+		serverDisplayName = summary.serverDisplayName;
+		playerState = summary.playerState;
+	}
+
+	function scheduleReveal(isVisible: boolean): void {
+		clearRevealTimer();
+
+		if (!isVisible || typeof window === "undefined") {
+			frameReady = false;
+			return;
+		}
+
+		frameReady = false;
+		revealTimer = window.setTimeout(() => {
+			frameReady = true;
+			revealTimer = null;
+		}, 100);
+	}
+
+	function clearRevealTimer(): void {
+		if (revealTimer === null || typeof window === "undefined") return;
+		window.clearTimeout(revealTimer);
+		revealTimer = null;
+	}
+</script>
+
+{#if $startupState.phase === "starting" || $startupState.phase === "restoring-session"}
+	<StartupOverlay />
+{:else if !$authState.user || !$authState.user.isActive}
+	<AuthScreen
+		user={$authState.user}
+		startupError={$startupState.error}
+		startupErrorCode={$startupState.errorCode}
+		onClose={() => void hideOverlay()}
+	/>
+{:else}
+	<main
+		class="overlay-shell"
+		class:overlay-shell--visible={frameReady}
+		class:overlay-shell--dashboard={activePage === "dashboard"}
+		class:overlay-shell--servers={activePage === "servers"}
+		class:overlay-shell--teams={activePage === "teams"}
+	>
+		<button
+			class="app-bg"
+			type="button"
+			tabindex="-1"
+			aria-label="Minimize SpellBook to tray"
+			on:click={() => void hideOverlay()}
+		></button>
+
+		<NavRail
+			{activePage}
+			{serverDisplayName}
+			notificationCount={$notificationInboxSession.unreadCount}
+			user={$authState.user}
+			onSelectPage={selectPage}
+			onLogout={signOut}
+		/>
+
+		<AmbientStage />
+
+		{#if !profileRequired}
+			<QuickActions
+				{latestVersion}
+				onOpenUpdate={() => void openUpdatePage()}
+				user={$authState.user}
+				{serverExternalId}
+				{serverName}
+			/>
+		{/if}
+
+			<OverlayContent
+			{activePage}
+			{selectedPlayer}
+			{selectedPlayerSubpage}
+			{selectedOwner}
+			{selectedProfileId}
+			{overlayVisible}
+			{serverExternalId}
+			{serverName}
+			{serverAddress}
+			{requestedTeamView}
+			onManageProfiles={manageTeamProfiles}
+			{requestedTeamId}
+			{requestedTeamRequestId}
+			{requestedYoursRequestId}
+			notificationState={$notificationInboxSession}
+			onRefreshNotifications={notificationInboxSession.refresh}
+			onLoadMoreNotifications={notificationInboxSession.loadMore}
+			onSetNotificationRead={notificationInboxSession.setRead}
+			onMarkAllNotificationsRead={notificationInboxSession.markAllRead}
+			onRemoveNotification={notificationInboxSession.remove}
+			onRemoveAllNotifications={notificationInboxSession.removeAll}
+			onOpenNotification={openNotification}
+			onRequestedTeamHandled={teamNavigation.handled}
+			onOpenYourServers={openYourServers}
+			onOpenTeam={openTeam}
+			onRequestedYoursHandled={handleYoursRequest}
+			onSelectPlayer={(player) => selectPlayer(player)}
+			onOpenPlayerProfile={openPlayerProfile}
+			onOpenPlayerNotes={openPlayerNotes}
+			onClearSelectedPlayer={() => selectPlayer(null)}
+			onOpenProfile={openProfile}
+			onSelectProfile={selectProfile}
+			onSelectOwner={selectOwner}
+			onServerSummaryChange={updateServerSummary}
+		/>
+	</main>
+{/if}
