@@ -1,0 +1,83 @@
+/*
+* GRID 
+* @version: 3.1
+* @description: Lightweight Flex-Grid system
+* @author: Magic
+*/
+@use "sass:map";
+@use "./GRID.v3.config.scss" as *;
+
+
+@mixin flexbox() {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-content: stretch;
+	align-items: flex-start;
+}
+
+@mixin center() {
+	justify-content: center;
+}
+
+@mixin middle() {
+	align-content: center;
+	align-items: center;
+}
+
+@mixin flex() {
+	@include flexbox();
+}
+
+@mixin col() {
+	padding-right: calc(var(--gutter) * 0.5);
+	padding-left: calc(var(--gutter) * 0.5);
+}
+
+@mixin row() {
+	margin-right: calc(var(--gutter) * -0.5);
+	margin-left: calc(var(--gutter) * -0.5);
+}
+
+@mixin xl {
+	@media (max-width: map.get($sizes, "xl")) {
+		@content;
+	}
+}
+
+@mixin lg {
+	@media (max-width: map.get($sizes, "lg")) {
+		@content;
+	}
+}
+
+@mixin md {
+	@media (max-width: map.get($sizes, "md")) {
+		@content;
+	}
+}
+
+@mixin sm {
+	@media (max-width: map.get($sizes, "sm")) {
+		@content;
+	}
+}
+
+@mixin xs {
+	@media (max-width: map.get($sizes, "xs")) {
+		@content;
+	}
+}
+
+@mixin menu-mobile {
+	@media (max-width: $menu-break) {
+		@content;
+	}
+}
+
+@mixin menu-desktop {
+	@media (min-width: ($menu-break + 1)) {
+		@content;
+	}
+}

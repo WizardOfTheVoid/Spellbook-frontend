@@ -1,0 +1,198 @@
+import { usesServerMessageFacts, type MessageFacts } from '@spellbook/shared/actions/messageFacts'
+import type { TagTypeDefinition } from '@spellbook/shared/actions/tagTypeDefinitions.js'
+import { ActionHandler } from '../services/actions/actionHandler'
+import type { ActionRecipe, ActionTarget, ActionContext } from '@spellbook/shared/actions/actionTypes'
+import { actionPriority } from '../core/actionPriority'
+import { withActionValidation } from '../core/actionClient'
+import type { IpcMain } from 'electron';
+import type { HttpClient } from '../api/http-client';
+import type { AppHealthService } from '../health/app-health-service';
+import type { RequestIdFactory } from '../request-id-factory';
+import type { CurrentGameSnapshotStore } from '../services/currentGameSnapshotStore'
+import type { ListPlayersPoller } from '../services/listPlayersPoller'
+import type { OverlayActivityGuard } from '../services/overlay-activity-guard';
+import type { CommandBatchPayload, CommandPayload, CoreCallResult, MessagePayload } from '../types';
+import type { OverlayWindowController } from '../window/overlay-window-controller'
+import type { GameStateService } from '../gameState/gameStateService'
+
+/**
+ * Registers Core IPC handlers that are not moderation-specific.
+ * Raw console commands are guarded because they can cause Core to focus and type into the game.
+ */
+export class CoreIpcHandlers {
+  constructor(
+    private readonly ipcMain: IpcMain,
+    private readonly httpClient: HttpClient,
+    private readonly appHealthService: AppHealthService,
+    private readonly listPlayersPoller: ListPlayersPoller,
+    private readonly currentGameSnapshots: CurrentGameSnapshotStore,
+    private readonly requestIds: RequestIdFactory,
+    private readonly overlayActivity: OverlayActivityGuard,
+    private readonly overlayWindow: OverlayWindowController,
+    private readonly gameState: GameStateService
+  ) {}
+
+  register(): void {
+    this.ipcMain.handle('core:health', async () => this.appHealthService.getHealth());
+
+    this.ipcMain.handle('core:snapshot', async () => this.httpClient.callCore('/v2/console/snapshot', {
+      method: 'POST',
+      body: JSON.stringify({ id: this.requestIds.next('snapshot') })
+    }));
+
+    this.ipcMain.handle(`core:listPlayers`, () => this.listPlayersPoller.refreshNow(`user`))
+    this.ipcMain.handle(`core:currentGameSnapshot`, () => this.currentGameSnapshots.get())
+    this.ipcMain.handle(`core:refreshCurrentGameSnapshot`, () => this.listPlayersPoller.refreshNow(`user`))
+    this.currentGameSnapshots.subscribe(snapshot => {
+      this.overlayWindow.sendToCurrent(`core:currentGameSnapshotChanged`, snapshot)
+    })
+
+    this.ipcMain.handle('core:nativeListPlayers', async () => this.httpClient.callCore('/v2/native/listplayers', {
+      method: 'POST',
+      body: JSON.stringify({ id: this.requestIds.next('native-listplayers') })
+    }))
+
+    this.ipcMain.handle('core:message', async (_event, payload: MessagePayload) => {
+      const kind = payload?.kind === 'admin' || payload?.kind === 'server' ? payload.kind : null
+      const message = typeof payload?.message === 'string' ? payload.message.trim() : ''
+
+      if (!kind) {
+        return CoreIpcHandlers.invalidMessageResult('Message kind must be admin or server.')
+      }
+
+      if (!message) {
+        return CoreIpcHandlers.invalidMessageResult('Message is required.')
+      }
+
+      if (!this.gameState.isInGameServer()) {
+        return { ok: false, status: 409, statusText: `NOT_IN_GAME_SERVER`, data: null,
+          error: { code: `NOT_IN_GAME_SERVER`, message: `Join a game server before sending a message.` } }
+      }
+
+      const inactiveResult = this.overlayActivity.getInactiveGameCommandResult()
+      if (inactiveResult) {
+        return inactiveResult
+      }
+
+      return withActionValidation(async () => this.httpClient.executeAction(this.httpClient.commands.message(kind, message), {
+        id: this.requestIds.next(`message`), author: `user`, priority: `normal`
+      }))
+    })
+
+    this.ipcMain.handle(`core:actionRecipe`, async (_event, payload: { recipe: ActionRecipe, target: ActionTarget, context: ActionContext, gameServerId: number }) => {
+      const definitions = await this.httpClient.getServer(`/definitions/tag-types`)
+      const envelope = definitions.data as { ok?: boolean, data?: TagTypeDefinition[] } | null
+      if (!definitions.ok || envelope?.ok === false || !Array.isArray(envelope?.data)) throw new Error(`Could not load tag definitions.`)
+      const actionContext: ActionContext = { ...payload.context, tagDefinitions: envelope.data }
+      if (usesServerMessageFacts(payload.recipe.commands)) {
+        const result = await this.httpClient.getServer(`/actions/message-context/${payload.gameServerId}`)
+        const facts = result.data as { ok?: boolean, data?: MessageFacts } | null
+        if (!result.ok || facts?.ok === false || !facts?.data) throw new Error(`Could not load message context.`)
+        Object.assign(actionContext, facts.data)
+      }
+      const snapshot = this.currentGameSnapshots.get()
+      if (!snapshot || Date.now() - Date.parse(snapshot.observedAt) > 15000 || snapshot.gameServerId !== payload.gameServerId) throw new RangeError(`Current server does not match action target.`)
+      const inactive = this.overlayActivity.beginGameCommandBatch()
+      if (inactive) return { result: inactive, prepared: null }
+      const id = this.requestIds.next(`profile`)
+      const unsubscribe = this.currentGameSnapshots.subscribe(current => {
+        if (!current || current.gameServerId !== payload.gameServerId) void this.httpClient.callCore(`/v3/actions/${encodeURIComponent(id)}/cancel`, { method: `POST` }).catch(error => console.warn(`[Actions] Cancellation failed`, error))
+      })
+      try {
+        return await new ActionHandler(this.httpClient).execute(payload.recipe, payload.target, actionContext, {
+          id, author: `user`,
+          priority: `normal`
+        })
+      } finally { unsubscribe(); this.overlayActivity.endGameCommandBatch() }
+    })
+
+    this.ipcMain.handle('core:commandBatch', async (_event, payload: CommandBatchPayload) => {
+      const commands = Array.isArray(payload?.commands) ? payload.commands : []
+
+      if (commands.length === 0) {
+        return CoreIpcHandlers.invalidCommandBatchResult()
+      }
+
+      const inactiveResult = this.overlayActivity.beginGameCommandBatch()
+      if (inactiveResult) {
+        return inactiveResult
+      }
+
+      try {
+        return await withActionValidation(async () => {
+          const prepared = this.httpClient.commands.batch(commands)
+          return this.httpClient.executeAction(prepared, {
+            id: this.requestIds.next(`batch`), author: `user`,
+            priority: actionPriority(`user`, prepared, this.httpClient.sentinelEnabled)
+          })
+        })
+      } finally {
+        this.overlayActivity.endGameCommandBatch()
+      }
+    })
+
+    this.ipcMain.handle('core:command', async (_event, payload: CommandPayload) => {
+      const command = typeof payload?.command === 'string' ? payload.command.trim() : '';
+
+      if (command.length === 0) {
+        return CoreIpcHandlers.invalidCommandResult();
+      }
+
+      // Raw console commands can affect the game, so require foreground overlay interaction first.
+      const inactiveResult = this.overlayActivity.getInactiveGameCommandResult();
+      if (inactiveResult) {
+        return inactiveResult;
+      }
+
+      return withActionValidation(async () => {
+        const commands = this.httpClient.commands.raw(command, {
+          expectClipboard: payload.expectClipboard === true,
+          restoreClipboard: payload.restoreClipboard !== false
+        })
+        return this.httpClient.executeAction(commands, {
+          id: this.requestIds.next(`command`), author: `user`,
+          priority: actionPriority(`user`, commands, this.httpClient.sentinelEnabled)
+        })
+      })
+    });
+  }
+
+  private static invalidCommandResult(): CoreCallResult {
+    return {
+      ok: false,
+      status: 400,
+      statusText: 'INVALID_REQUEST',
+      data: null,
+      error: {
+        code: 'INVALID_REQUEST',
+        message: 'Command is required.'
+      }
+    };
+  }
+
+  private static invalidCommandBatchResult(): CoreCallResult {
+    return {
+      ok: false,
+      status: 400,
+      statusText: 'INVALID_REQUEST',
+      data: null,
+      error: {
+        code: 'INVALID_REQUEST',
+        message: 'At least one command is required.'
+      }
+    }
+  }
+
+  private static invalidMessageResult(message: string): CoreCallResult {
+    return {
+      ok: false,
+      status: 400,
+      statusText: 'INVALID_REQUEST',
+      data: null,
+      error: {
+        code: 'INVALID_REQUEST',
+        message
+      }
+    }
+  }
+}
