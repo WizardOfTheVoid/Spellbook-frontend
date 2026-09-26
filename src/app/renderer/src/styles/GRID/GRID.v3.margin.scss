@@ -1,0 +1,78 @@
+/*
+* GRID 
+* @version: 3.1
+* @description: Lightweight Flex-Grid system
+* @author: Magic
+*/
+@use "./GRID.v3.config.scss" as *;
+
+@each $name, $size in $sizes {
+	@media only screen and (min-width: #{$size}) {
+		@each $dir in $coord {
+			@for $k from 0 through $columns {
+				.margin-#{$dir}-#{$name}-#{$k} {
+					margin-#{$dir}: calc(var(--gutter) * #{$k})
+				}
+				.margin-#{$name}-#{$k} {
+					margin: calc(var(--gutter) * #{$k})
+				}
+				.padding-#{$dir}-#{$name}-#{$k} {
+					padding-#{$dir}: calc(var(--gutter) * #{$k})
+				}
+				.padding-#{$name}-#{$k} {
+					padding: calc(var(--gutter) * #{$k})
+				}
+			}
+		}
+	}
+}
+
+@for $k from 0 through $columns {
+	.margin-#{$k}, 
+	[margin-#{$k}]   { 
+		margin: calc(var(--gutter) * #{$k}) 
+	}
+	.padding-#{$k}, 
+	[padding-#{$k}]  { 
+		padding: calc(var(--gutter) * #{$k}) 
+	}
+}
+
+@each $dir in $coord {
+	@for $k from 0 through $columns {
+		.margin-#{$dir}-#{$k}   { 
+			margin-#{$dir}: calc(var(--gutter) * #{$k}) 
+		}
+		.padding-#{$dir}-#{$k}  { 
+			padding-#{$dir}: calc(var(--gutter) * #{$k}) 
+		}
+	}
+}
+
+@each $name, $size in $sizes {
+	@media only screen and (min-width: #{$size}) {
+		@for $k from 0 through $columns {
+			.gap-#{$name}-#{$k} {
+				--grid-gap: calc(var(--gutter) * #{$k});
+				gap: var(--grid-gap)
+			}
+		}
+	}
+}
+
+.gap-0 { --grid-gap: calc(var(--gutter) * 0); gap: var(--grid-gap) }
+.gap-025 { --grid-gap: calc(var(--gutter) * 0.25); gap: var(--grid-gap) }
+.gap-05 { --grid-gap: calc(var(--gutter) * 0.5); gap: var(--grid-gap) }
+.gap-075 { --grid-gap: calc(var(--gutter) * 0.75); gap: var(--grid-gap) }
+
+.gap-125 { --grid-gap: calc(var(--gutter) * 1.25); gap: var(--grid-gap) }
+.gap-15 { --grid-gap: calc(var(--gutter) * 1.5); gap: var(--grid-gap) }
+.gap-175 { --grid-gap: calc(var(--gutter) * 1.75); gap: var(--grid-gap) }
+
+// Loop and create gap-05, gap-025, gap-1, gap-2, etc.
+@for $k from 0 through $columns {
+	.gap-#{$k} {
+		--grid-gap: calc(var(--gutter) * #{$k});
+		gap: var(--grid-gap)
+	}
+}
