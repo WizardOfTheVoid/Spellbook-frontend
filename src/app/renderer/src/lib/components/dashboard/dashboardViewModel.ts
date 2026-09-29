@@ -1,0 +1,5 @@
+import type { DashboardViewQuery, DashboardViewModel, DashboardTimelineQuery, DashboardTimelineData, DashboardLeaderboardQuery, DashboardLeaderboardPage } from '@spellbook/shared/dashboard.js'
+export type { DashboardEnvironment, DashboardPeriod, DashboardTimelineView, DashboardRankingKind, DashboardViewQuery, DashboardEntity, DashboardRank, DashboardTimelineSeries, DashboardTimeRange, DashboardTimelineData, DashboardTimelineQuery, DashboardActionTotals, DashboardViewModel, DashboardLeaderboardQuery, DashboardLeaderboardPage } from '@spellbook/shared/dashboard.js'
+export type DashboardDataSource = Readonly<{ load: (query: DashboardViewQuery) => Promise<DashboardViewModel>, loadTimeline?: (query: DashboardTimelineQuery) => Promise<DashboardTimelineData>, loadLeaderboard: (query: DashboardLeaderboardQuery) => Promise<DashboardLeaderboardPage> }>
+export const defaultDashboardQuery: DashboardViewQuery = { environment: `global`, period: `30Days`, timeline: `playerActions` }
+export const dashboardQueryKey = (query: DashboardViewQuery) => [query.environment, query.period, query.timeline].join(`:`)
