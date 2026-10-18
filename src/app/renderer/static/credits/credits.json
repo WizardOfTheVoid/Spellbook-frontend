@@ -1,0 +1,684 @@
+{
+  "title": [
+    "SPELL",
+    "BOOK"
+  ],
+  "intro": "A long time ago, on a server\nfar, far away....",
+  "episode": "EPISODE",
+  "heading": "A NEW ADMIN TOOL",
+  "paragraphs": [
+    "CHEATERS rush toward the CHIV COMMUNITY, thinking no one's checking their pod.",
+    "SPELLBOOK has other plans."
+  ],
+  "credits": [
+    {
+      "role": "Created by",
+      "name": "magic trashcan"
+    },
+    {
+      "role": "Presented by",
+      "name": "The Wizard Alliance"
+    },
+    {
+      "role": "Bugs by:",
+      "name": "Torn Banner"
+    },
+    {
+      "role": "Special thanks to:",
+      "name": "Report_"
+    },
+    {
+      "role": "Closed Beta participants:",
+      "name": "The Templars     KRT     STD"
+    }
+  ],
+  "closing": "MAY THE COMMANDS BE WITH YOU.",
+  "planet": {
+    "name": "Chiv community",
+    "eyebrow": "",
+    "caption": ""
+  },
+  "ship": {
+    "name": "SpellBook",
+    "registry": "SB-001",
+    "designation": "COMMUNITY DEFENCE • WIZARD ALLIANCE"
+  },
+  "pod": {
+    "name": "CHEATERS",
+    "registry": "ESCAPE POD • 02",
+    "droids": [
+      "Cheater 1",
+      "Cheater 2"
+    ]
+  },
+  "timing": {
+    "titleAt": 2.330096,
+    "crawlAt": 12,
+    "panAt": 44,
+    "planetAt": 50,
+    "podAt": 51,
+    "shipAt": 53,
+    "scanResultAt": 71.65,
+    "fireOrderAt": 75.57,
+    "chargeAt": 76.25,
+    "alarmAt": 77.55,
+    "impactAt": 83.45,
+    "endCardAt": 93,
+    "fadeAt": 98,
+    "duration": 101
+  },
+  "shots": [
+    {
+      "id": "intro",
+      "start": 0,
+      "end": 2.330096,
+      "scene": "opening",
+      "label": "A long time ago",
+      "fov": 50,
+      "subject": "world"
+    },
+    {
+      "id": "logo",
+      "start": 2.330096,
+      "end": 12,
+      "scene": "opening",
+      "label": "SPELL / BOOK",
+      "fov": 50,
+      "subject": "world"
+    },
+    {
+      "id": "crawl",
+      "start": 12,
+      "end": 44,
+      "scene": "opening",
+      "label": "A NEW ADMIN",
+      "fov": 50,
+      "subject": "world"
+    },
+    {
+      "id": "descent",
+      "start": 44,
+      "end": 50,
+      "scene": "space",
+      "label": "The community below",
+      "fov": 48,
+      "subject": "world"
+    },
+    {
+      "id": "world",
+      "start": 50,
+      "end": 51,
+      "scene": "space",
+      "label": "A world worth protecting",
+      "fov": 48,
+      "subject": "world"
+    },
+    {
+      "id": "escape",
+      "start": 51,
+      "end": 53,
+      "scene": "space",
+      "label": "One uninvited guest",
+      "fov": 48,
+      "subject": "pod"
+    },
+    {
+      "id": "underpass",
+      "start": 53,
+      "end": 58,
+      "scene": "space",
+      "label": "Something considerably bigger",
+      "fov": 48,
+      "subject": "ship"
+    },
+    {
+      "id": "engines",
+      "start": 58,
+      "end": 59,
+      "scene": "space",
+      "label": "Not subtle",
+      "fov": 39,
+      "subject": "ship"
+    },
+    {
+      "id": "hull",
+      "start": 59,
+      "end": 60.1,
+      "scene": "space",
+      "label": "SpellBook",
+      "fov": 32,
+      "subject": "ship"
+    },
+    {
+      "id": "podEstablish",
+      "start": 60.1,
+      "end": 61.3,
+      "scene": "space",
+      "label": "Cheaters escape pod",
+      "fov": 38,
+      "subject": "pod"
+    },
+    {
+      "id": "pod",
+      "start": 61.3,
+      "end": 62,
+      "scene": "pod",
+      "label": "Inside the escape pod",
+      "fov": 40,
+      "subject": "pod"
+    },
+    {
+      "id": "podA",
+      "start": 62,
+      "end": 63.7,
+      "scene": "pod",
+      "label": "A foolproof plan",
+      "fov": 34,
+      "subject": "pod"
+    },
+    {
+      "id": "podB",
+      "start": 63.7,
+      "end": 65,
+      "scene": "pod",
+      "label": "Nothing to worry about",
+      "fov": 35,
+      "subject": "pod"
+    },
+    {
+      "id": "bridgeExterior",
+      "start": 65,
+      "end": 66.2,
+      "scene": "space",
+      "label": "SpellBook command tower",
+      "fov": 38,
+      "subject": "ship"
+    },
+    {
+      "id": "bridge",
+      "start": 66.2,
+      "end": 67.4,
+      "scene": "bridge",
+      "label": "On the bridge",
+      "fov": 39,
+      "subject": "ship"
+    },
+    {
+      "id": "officer",
+      "start": 67.4,
+      "end": 69.5,
+      "scene": "bridge",
+      "label": "Permission",
+      "fov": 33,
+      "subject": "ship"
+    },
+    {
+      "id": "captain",
+      "start": 69.5,
+      "end": 71,
+      "scene": "bridge",
+      "label": "The assessment",
+      "fov": 30,
+      "subject": "ship"
+    },
+    {
+      "id": "scanner",
+      "start": 71,
+      "end": 72.2,
+      "scene": "bridge",
+      "label": "A thorough scan",
+      "fov": 33,
+      "subject": "ship"
+    },
+    {
+      "id": "verdict",
+      "start": 72.2,
+      "end": 74.7,
+      "scene": "bridge",
+      "label": "The verdict",
+      "fov": 28,
+      "subject": "ship"
+    },
+    {
+      "id": "reverse",
+      "start": 74.7,
+      "end": 75.45,
+      "scene": "bridge",
+      "label": "Sir?",
+      "fov": 31,
+      "subject": "ship"
+    },
+    {
+      "id": "order",
+      "start": 75.45,
+      "end": 76.25,
+      "scene": "bridge",
+      "label": "Fire",
+      "fov": 26,
+      "subject": "ship"
+    },
+    {
+      "id": "turrets",
+      "start": 76.25,
+      "end": 77.05,
+      "scene": "space",
+      "label": "Weapons free",
+      "fov": 38,
+      "subject": "ship"
+    },
+    {
+      "id": "muzzle",
+      "start": 77.05,
+      "end": 77.55,
+      "scene": "space",
+      "label": "Point made",
+      "fov": 37,
+      "subject": "ship"
+    },
+    {
+      "id": "salvo",
+      "start": 77.55,
+      "end": 78.15,
+      "scene": "space",
+      "label": "Special delivery",
+      "fov": 40,
+      "subject": "pod"
+    },
+    {
+      "id": "panicA",
+      "start": 78.15,
+      "end": 80.25,
+      "scene": "pod",
+      "label": "The flaw in the plan",
+      "fov": 32,
+      "subject": "pod"
+    },
+    {
+      "id": "threat",
+      "start": 80.25,
+      "end": 80.65,
+      "scene": "space",
+      "label": "Delivery confirmed",
+      "fov": 34,
+      "subject": "pod"
+    },
+    {
+      "id": "panicB",
+      "start": 80.65,
+      "end": 83.15,
+      "scene": "pod",
+      "label": "An excellent point",
+      "fov": 31,
+      "subject": "pod"
+    },
+    {
+      "id": "panicWide",
+      "start": 83.15,
+      "end": 83.45,
+      "scene": "pod",
+      "label": "Too late",
+      "fov": 40,
+      "subject": "pod"
+    },
+    {
+      "id": "impact",
+      "start": 83.45,
+      "end": 85,
+      "scene": "space",
+      "label": "Denied",
+      "fov": 44,
+      "subject": "pod"
+    },
+    {
+      "id": "aftermath",
+      "start": 85,
+      "end": 86.1,
+      "scene": "space",
+      "label": "A brief cleanup",
+      "fov": 42,
+      "subject": "pod"
+    },
+    {
+      "id": "bridgeReturn",
+      "start": 86.1,
+      "end": 86.55,
+      "scene": "space",
+      "label": "Back aboard SpellBook",
+      "fov": 37,
+      "subject": "ship"
+    },
+    {
+      "id": "reaction",
+      "start": 86.55,
+      "end": 87,
+      "scene": "bridge",
+      "label": "Noted",
+      "fov": 32,
+      "subject": "ship"
+    },
+    {
+      "id": "bridgeEnd",
+      "start": 87,
+      "end": 89,
+      "scene": "bridge",
+      "label": "You are welcome",
+      "fov": 36,
+      "subject": "ship"
+    },
+    {
+      "id": "scannerEnd",
+      "start": 89,
+      "end": 89.7,
+      "scene": "bridge",
+      "label": "Other problems remain",
+      "fov": 33,
+      "subject": "ship"
+    },
+    {
+      "id": "captainDry",
+      "start": 89.7,
+      "end": 90.4,
+      "scene": "bridge",
+      "label": "Of course they do",
+      "fov": 27,
+      "subject": "ship"
+    },
+    {
+      "id": "hero",
+      "start": 90.4,
+      "end": 93,
+      "scene": "space",
+      "label": "The watch continues",
+      "fov": 42,
+      "subject": "ship"
+    },
+    {
+      "id": "worldEnd",
+      "start": 93,
+      "end": 98,
+      "scene": "space",
+      "label": "Chiv community",
+      "fov": 44,
+      "subject": "world"
+    },
+    {
+      "id": "outro",
+      "start": 98,
+      "end": 101,
+      "scene": "space",
+      "label": "End",
+      "fov": 44,
+      "subject": "world"
+    }
+  ],
+  "dialogue": [
+    {
+      "start": 62.08,
+      "end": 64.75,
+      "speaker": "Cheater 1",
+      "voice": "droid",
+      "text": "They'll never check an escape pod."
+    },
+    {
+      "start": 67.52,
+      "end": 69.35,
+      "speaker": "OFFICER",
+      "voice": "officer",
+      "text": "Sir, look at that"
+    },
+    {
+      "start": 69.62,
+      "end": 70.85,
+      "speaker": "COMMANDER",
+      "voice": "commander",
+      "text": "It seems to have..."
+    },
+    {
+      "start": 72.25,
+      "end": 74.5,
+      "speaker": "COMMANDER",
+      "voice": "commander",
+      "text": "...no intelligent life form on board."
+    },
+    {
+      "start": 74.77,
+      "end": 75.3,
+      "speaker": "OFFICER",
+      "voice": "officer",
+      "text": "Open fire?"
+    },
+    {
+      "start": 75.57,
+      "end": 76.03,
+      "speaker": "COMMANDER",
+      "voice": "commander",
+      "text": "Sure why not."
+    },
+    {
+      "start": 78.22,
+      "end": 80.5,
+      "speaker": "Cheater 1",
+      "voice": "droid",
+      "text": "Shit. They checked our intelligence."
+    },
+    {
+      "start": 80.72,
+      "end": 83.08,
+      "speaker": "Cheater 2",
+      "voice": "droid2",
+      "text": "I knew we should have spoofed IQ."
+    },
+    {
+      "start": 87.12,
+      "end": 88.88,
+      "speaker": "OFFICER",
+      "voice": "officer",
+      "text": "You're welcome Torn Banner."
+    }
+  ],
+  "salvos": [
+    {
+      "fire": 77.14,
+      "arrival": 78.08,
+      "mount": 0,
+      "miss": [
+        12,
+        6,
+        0
+      ]
+    },
+    {
+      "fire": 77.32,
+      "arrival": 78.3,
+      "mount": 1,
+      "miss": [
+        -10,
+        4,
+        0
+      ]
+    },
+    {
+      "fire": 77.49,
+      "arrival": 78.65,
+      "mount": 2,
+      "miss": [
+        8,
+        -7,
+        0
+      ]
+    },
+    {
+      "fire": 80.25,
+      "arrival": 83.45,
+      "mount": 0,
+      "miss": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "fire": 80.38,
+      "arrival": 83.55,
+      "mount": 1,
+      "miss": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "fire": 80.52,
+      "arrival": 83.65,
+      "mount": 2,
+      "miss": [
+        -1,
+        0,
+        0
+      ]
+    }
+  ],
+  "screens": {
+    "system": "SPELLBOOK / SENTINEL",
+    "tracking": "ESCAPE VECTOR DETECTED",
+    "target": "TARGET: CHEATERS",
+    "life": "LIFE SIGNS: 02",
+    "scan": "ANALYSING INTELLIGENCE",
+    "result": "NONE DETECTED",
+    "armed": "WEAPONS AUTHORISED",
+    "protected": "COMMUNITY SECURED",
+    "bugs": "BUGS REMAINING: ∞",
+    "bridge": "COMMUNITY DEFENCE COMMAND",
+    "podWarning": "INCOMING FIRE",
+    "podRoute": "DESTINATION: CHIV COMMUNITY",
+    "podStatus": "TRANSPONDER: DEFINITELY LEGIT",
+    "podHint": "STEALTH: OPTIMISTIC"
+  },
+  "endCard": {
+    "name": "SpellBook",
+    "line": "THE COMMUNITY STRIKES BACK.",
+    "detail": "Thanks to GPT for this slop of a credit sequence"
+  },
+  "music": {
+    "url": "./assets/star-wars-main.mid",
+    "title": "Star Wars - Main Theme",
+    "composer": "John Williams",
+    "volume": 0.45,
+    "effectsVolume": 0.50
+  },
+  "ui": {
+    "presenter": "THE WIZARD ALLIANCE PRESENTS",
+    "edition": "A THREE.JS SHORT FILM",
+    "start": "BEGIN THE FILM",
+    "loading": "INITIALISING FLIGHT SYSTEMS…",
+    "silent": "WATCH SILENTLY",
+    "chooseMidi": "CHOOSE MIDI",
+    "ready": "101 SECONDS  /  38 SHOTS  /  ENTIRELY OFFLINE",
+    "hint": "SPACE  PAUSE     ← →  SEEK     M  MUTE     F  FULLSCREEN",
+    "play": "Play / pause",
+    "mute": "Mute / unmute",
+    "fullscreen": "Fullscreen",
+    "replay": "Replay",
+    "subtitles": "Subtitles",
+    "skip": "SKIP TO THE ESCAPE",
+    "seek": "Film position",
+    "loadError": "Could not start the film. Use a browser with WebGL enabled.",
+    "audioError": "Audio could not start. Try Begin again or watch silently.",
+    "ended": "THE END",
+    "canvasDescription": "SpellBook intercepts a Cheaters escape pod before it reaches the Chiv community."
+  },
+  "picture": {
+    "aspect": 2.39
+  },
+  "crawl": {
+    "width": 34,
+    "tiltDegrees": 62,
+    "entryWidthFraction": 0.82,
+    "exitDistance": 24,
+    "firstInkPadding": 40
+  },
+  "flight": {
+    "podAt": 51,
+    "podOrigin": [
+      -9,
+      23,
+      62
+    ],
+    "podVelocity": [
+      1.9,
+      -4.6,
+      -28
+    ],
+    "shipAt": 53,
+    "shipOrigin": [
+      0,
+      37,
+      126
+    ],
+    "shipPassDuration": 5,
+    "shipPassSpeed": 70,
+    "shipCruiseSpeed": 12,
+    "shipCruiseVelocity": [
+      0.5,
+      -1.4,
+      -12
+    ]
+  },
+  "speech": {
+    "volume": 0.28,
+    "pitchScale": 0.78
+  },
+  "interiors": {
+    "bridge": {
+      "wall": 2436920,
+      "floor": 1318181,
+      "strip": 7642284,
+      "key": 13229025,
+      "rim": 10147831,
+      "console": 8442592,
+      "accent": 15372386
+    },
+    "pod": {
+      "wall": 4792354,
+      "floor": 2494996,
+      "strip": 16270391,
+      "key": 16758944,
+      "rim": 16398128,
+      "console": 16742233,
+      "accent": 16724008
+    }
+  },
+  "sound": {
+    "destroyer": {
+      "frequency": 38,
+      "overtone": 76,
+      "cutoff": 240,
+      "gain": 0.54
+    },
+    "pod": {
+      "frequency": 116,
+      "overtone": 174,
+      "cutoff": 620,
+      "gain": 0.31
+    },
+    "bridgeHum": {
+      "frequency": 48,
+      "overtone": 96,
+      "cutoff": 180,
+      "gain": 0.09
+    },
+    "cabinHum": {
+      "frequency": 135,
+      "overtone": 202,
+      "cutoff": 410,
+      "gain": 0.075
+    },
+    "weapons": {
+      "chargeGain": 0.27,
+      "laserGain": 0.36,
+      "nearMissGain": 0.19,
+      "explosionGain": 0.84
+    },
+    "dialogueDuck": 0.68
+  }
+}
