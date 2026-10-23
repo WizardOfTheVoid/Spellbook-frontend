@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 272 202" width="272" height="202" role="img">
+  <style><![CDATA[
+    :root {
+      --doc: rgb(156 95 255);
+      --lens: rgb(255 61 154);
+      --spark: rgb(255 226 150);
+    }
+
+    .floaty {
+      animation: floaty 5s ease-in-out infinite;
+      transform-origin: 136px 102px;
+    }
+
+    .lens {
+      animation: lensPulse 3s ease-in-out infinite;
+      transform-origin: 182px 115px;
+    }
+
+    .xmark {
+      animation: xPulse 4s ease-in-out infinite;
+      transform-origin: 182px 115px;
+    }
+
+    .spark-a { animation: twinkleA 4s ease-in-out infinite; transform-origin: 57px 85px; }
+    .spark-b { animation: twinkleB 4.8s ease-in-out infinite; transform-origin: 55px 119px; }
+    .spark-c { animation: twinkleC 5.1s ease-in-out infinite; transform-origin: 47px 102px; }
+    .spark-d { animation: twinkleA 4.2s ease-in-out 0.4s infinite; transform-origin: 226px 72px; }
+    .spark-e { animation: twinkleB 4.6s ease-in-out 0.7s infinite; transform-origin: 258px 96px; }
+
+    .line-1 { animation: linePulse 4.2s ease-in-out infinite; }
+    .line-2 { animation: linePulse 4.2s ease-in-out 0.35s infinite; }
+    .line-3 { animation: linePulse 4.2s ease-in-out 0.7s infinite; }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-2px); }
+    }
+
+    @keyframes lensPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.025); }
+    }
+
+    @keyframes xPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.965); opacity: 0.88; }
+    }
+
+    @keyframes twinkleA {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes twinkleB {
+      0%, 100% { opacity: 0.3; transform: scale(0.95); }
+      50% { opacity: 0.85; transform: scale(1.06); }
+    }
+
+    @keyframes twinkleC {
+      0%, 100% { opacity: 0.35; transform: translateY(0); }
+      50% { opacity: 0.78; transform: translateY(1px); }
+    }
+
+    @keyframes linePulse {
+      0%, 100% { opacity: 0.72; }
+      50% { opacity: 1; }
+    }
+  ]]></style>
+
+  <ellipse cx="136" cy="180" rx="86" ry="12" fill="#000" opacity="0.2"/>
+
+  <g class="floaty" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- document -->
+    <g stroke="var(--doc)" stroke-width="3">
+      <path d="M98 29h86c8.8 0 16 7.2 16 16v80" opacity="0.8"/>
+      <path d="M200 125v11c0 8.8-7.2 16-16 16H98c-8.8 0-16-7.2-16-16V45c0-8.8 7.2-16 16-16" opacity="0.8"/>
+      <circle cx="104.5" cy="65" r="5.2" fill="var(--doc)" stroke="none" opacity="0.95"/>
+      <circle cx="104.5" cy="92" r="5.2" fill="var(--doc)" stroke="none" opacity="0.9"/>
+      <circle cx="104.5" cy="119" r="5.2" fill="var(--doc)" stroke="none" opacity="0.85"/>
+      <rect class="line-1" x="121.5" y="60.8" width="41" height="8.4" rx="4.2" fill="var(--doc)" stroke="none" opacity="0.75"/>
+      <rect class="line-2" x="121.5" y="87.8" width="44" height="8.4" rx="4.2" fill="var(--doc)" stroke="none" opacity="0.7"/>
+      <rect class="line-3" x="121.5" y="114.8" width="33" height="8.4" rx="4.2" fill="var(--doc)" stroke="none" opacity="0.65"/>
+    </g>
+
+    <!-- magnifying glass -->
+    <g class="lens" stroke="var(--lens)" stroke-width="5">
+      <circle cx="182" cy="115" r="29"/>
+      <path d="M203 136l14 14" stroke-width="7"/>
+    </g>
+
+    <!-- x -->
+    <g class="xmark" stroke="var(--lens)" stroke-width="4.5">
+      <path d="M173 106l18 18"/>
+      <path d="M191 106l-18 18"/>
+    </g>
+  </g>
+
+  <!-- sparkles -->
+  <g stroke="var(--spark)" fill="var(--spark)" stroke-linecap="round">
+    <g class="spark-a">
+      <circle cx="57" cy="85" r="2.6"/>
+    </g>
+    <g class="spark-b" stroke-width="2.4">
+      <path d="M50 119h10"/>
+      <path d="M55 114v10"/>
+    </g>
+    <g class="spark-c" stroke-width="2.4">
+      <path d="M44 99l6 6"/>
+      <path d="M50 99l-6 6"/>
+    </g>
+    <g class="spark-d" stroke-width="2.6">
+      <path d="M221 72h10"/>
+      <path d="M226 67v10"/>
+    </g>
+    <g class="spark-e" stroke-width="2.3">
+      <path d="M256 94l5 5"/>
+      <path d="M261 94l-5 5"/>
+    </g>
+  </g>
+</svg>
