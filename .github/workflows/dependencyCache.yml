@@ -1,0 +1,87 @@
+name: Warm release dependencies
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - package-lock.json
+      - src/core/**/*.csproj
+      - src/core/**/*.props
+      - src/core/**/*.targets
+      - src/core/**/packages.lock.json
+      - '**/NuGet.Config'
+      - '**/nuget.config'
+      - '**/global.json'
+      - scripts/releaseCache/**
+      - .github/actions/releaseCache/**
+      - .github/workflows/dependencyCache.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spellbook-public-dependency-cache
+  cancel-in-progress: true
+
+env:
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: '1'
+
+jobs:
+  windows:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore release downloads
+        id: cache
+        uses: ./.github/actions/releaseCache
+        timeout-minutes: 2
+        continue-on-error: true
+      - name: Discard incomplete cache restore
+        if: steps.cache.outcome == 'failure'
+        shell: pwsh
+        run: node scripts/releaseCache/cacheSettings.mjs --clear all
+      - name: Warm dependency downloads
+        shell: pwsh
+        run: |
+          npm ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore src/core/CoreHost.Tests/CoreHost.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore src/core/CoreHost/CoreHost.csproj --runtime win-x64 -p:SelfContained=true
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/releaseCache/warmPackagingCache.mjs
+      - name: Save npm downloads
+        if: steps.cache.outputs.npm-hit != 'true' && steps.cache.outputs.npm-key != ''
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5
+        timeout-minutes: 2
+        continue-on-error: true
+        with:
+          path: ${{ steps.cache.outputs.npm-path }}
+          key: ${{ steps.cache.outputs.npm-key }}
+      - name: Save NuGet packages
+        if: steps.cache.outputs.nuget-hit != 'true' && steps.cache.outputs.nuget-key != ''
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5
+        timeout-minutes: 2
+        continue-on-error: true
+        with:
+          path: ${{ steps.cache.outputs.nuget-path }}
+          key: ${{ steps.cache.outputs.nuget-key }}
+      - name: Save packaging tools
+        if: steps.cache.outputs.packaging-hit != 'true' && steps.cache.outputs.packaging-key != ''
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5
+        timeout-minutes: 2
+        continue-on-error: true
+        with:
+          path: ${{ steps.cache.outputs.packaging-path }}
+          key: ${{ steps.cache.outputs.packaging-key }}

@@ -1,0 +1,62 @@
+/*
+* GRID layout helpers
+* @description: Reusable non-column structure primitives for app composition
+*/
+
+.grid-stack {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.grid-stack-fill {
+	height: 100%;
+	min-height: 0;
+}
+
+.grid-scroll {
+	min-height: 0;
+	overflow: auto;
+}
+
+.grid-scroll-stack {
+	min-height: 0;
+	display: grid;
+	align-content: start;
+	overflow: auto;
+}
+
+.grid-cluster {
+	min-width: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.grid-cluster-nowrap {
+	flex-wrap: nowrap;
+}
+
+.grid-inline-cluster {
+	display: inline-flex;
+	align-items: center;
+}
+
+.grid-place-center {
+	display: grid;
+	place-items: center;
+}
+
+.grid-fill {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+.grid-no-shrink {
+	flex: 0 0 auto;
+}
+
+.grid-width-full {
+	width: 100%;
+}
