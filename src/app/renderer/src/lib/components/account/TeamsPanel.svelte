@@ -1,0 +1,631 @@
+<script lang="ts">
+	import { getAdminName } from "@spellbook/shared/adminName.js"
+
+	import {
+		navigation,
+		rememberNavigation,
+		navigationScroll,
+	} from "$lib/navigation/navigation";
+	import { tick, onDestroy, type Snippet } from "svelte";
+	import { get } from 'svelte/store'
+	import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
+	import Tile from "$lib/components/ui/Tile.svelte";
+	import TileGrid from "$lib/components/ui/TileGrid.svelte";
+	import JoinTeamModal from "./JoinTeamModal.svelte";
+	import TeamServersModal from "./teamServersModal.svelte";
+	import TeamRequests from "./TeamRequests.svelte";
+	import {
+		getCoreErrorMessage,
+		type TeamMemberRecord,
+		type TeamRecord,
+		type TeamListRecord,
+	} from "$lib/core";
+	import { authState, User } from "$lib/auth/user";
+	import { gameServerChanged } from '$lib/stores/gameServersStore'
+	import { unwrap } from "$lib/utils/apiResult";
+	import {
+		notifyError,
+		notifySuccess,
+	} from "$lib/notifications/notificationEvents";
+	import PanelHeader from "$lib/components/ui/PanelHeader.svelte";
+	import EmptyState from "$lib/components/ui/EmptyState.svelte";
+	import IconButton from "$lib/components/ui/IconButton.svelte";
+	import Input from "$lib/components/ui/Input.svelte";
+	import TeamListRow from "./teamListRow.svelte";
+	import DiscordTeamTile from "./DiscordTeamTile.svelte";
+	import TeamDetail from "./TeamDetail.svelte";
+	import { applyTeamNavigationRequest, createTeamSelection } from "./teamPanelNavigation";
+	import { mergeTeamMembers } from "./teamMemberOrder";
+	import TeamActions from "./TeamActions.svelte"
+	import TeamGuidelines from "./teams/teamGuidelines.svelte"
+	import TeamSettings from "./teams/teamSettings.svelte"
+	import { unsavedChanges } from "$lib/utils/unsavedChanges"
+	import { fetchProfileOwners } from "$lib/utils/serverProfilesApi";
+	import InfoNotice from "$lib/components/ui/infoNotice.svelte";
+	import { pendingTeamRequests } from "$lib/stores/pendingTeamRequests";
+	import { currentTeamState } from '$lib/teams/currentTeamStore'
+	import type { TeamPanelLocation, TeamPanelTarget } from '$lib/teams/teamNavigation'
+
+	export let hidden = false;
+	export let isActive = false;
+	export let requestedTeamView: TeamPanelTarget | null = null
+	export let onLocation: (location: TeamPanelLocation) => void = () => {}
+	export let requestedTeamId: number | null = null;
+	export let requestedTeamRequestId: number | null = null;
+	export let onRequestedTeamHandled: (
+		requestId: number,
+		error?: unknown,
+		applied?: boolean,
+	) => void = () => {};
+
+	let modal: `create` | `join` | `remove` | `servers` | null = null;
+	let removingMember: TeamMemberRecord | null = null;
+	let teamView: `members` | `requests` | `guidelines` | `settings` = `members`
+	let teams: TeamListRecord[] = [];
+	let members: TeamMemberRecord[] = [];
+	let memberOrderTeamId: number | null = null;
+	let memberOptions: TeamMemberRecord[] = [];
+	let selectedTeamId: number | null = null;
+	let teamName = "";
+	let loaded = false;
+	let busy = false;
+	let loadingOptions = false;
+	let loadingTeams = false;
+	let handlingRequestedTeam = false;
+	let teamLoadError: unknown = null;
+	let teamsRevision = 0;
+	let loadedRequestCount = -1;
+	let headerActions: Snippet | null = null
+	const teamSelection = createTeamSelection()
+	onDestroy(() => { teamSelection.cancel(); teamsRevision++ })
+	$: selectedTeam = teams.find((team) => team.id === selectedTeamId) ?? null;
+	$: onLocation({ teamId: selectedTeamId, teamView: modal === `servers` ? `servers` : teamView })
+	$: canAdmin =
+		selectedTeam ?
+			User.Ability.can("admin", { type: "team", id: selectedTeam.id })
+		:	false;
+	$: if (
+		isActive &&
+		requestedTeamId === null &&
+		requestedTeamRequestId === null &&
+		!loaded &&
+		!loadingTeams &&
+		!teamLoadError
+	)
+		void loadTeams();
+	$: if (
+		isActive &&
+		loaded &&
+		!selectedTeamId &&
+		!loadingTeams &&
+		loadedRequestCount !== $pendingTeamRequests
+	) {
+		void loadTeams();
+	}
+	$: if (
+		isActive &&
+		!loadingTeams &&
+		!handlingRequestedTeam &&
+		requestedTeamRequestId !== null
+	) {
+		void applyRequestedTeam();
+	}
+
+	async function loadTeams(): Promise<void> {
+		loadedRequestCount = $pendingTeamRequests;
+		const revision = ++teamsRevision;
+		loadingTeams = true;
+		teamLoadError = null;
+		try {
+			await currentTeamState.refresh()
+			if (revision !== teamsRevision) return
+			const catalog = get(currentTeamState)
+			const useCatalog = !User.is(`superadmin`) && catalog.userId === $authState.user?.id
+			if (useCatalog && catalog.error) throw new Error(catalog.error)
+			const loadedTeams = useCatalog ? catalog.teams : await unwrap<TeamListRecord[]>(
+				await window.chivServer.teams.list(User.is(`superadmin`)), `Teams request failed.`)
+			if (revision !== teamsRevision) return;
+			teams = loadedTeams;
+			User.Ability.setTeams(teams);
+			if (selectedTeamId && !teams.some((team) => team.id === selectedTeamId)) {
+				selectedTeamId = null;
+				members = [];
+				memberOrderTeamId = null;
+			}
+			if (selectedTeamId) await loadMembers();
+			loaded = true;
+		} catch (value) {
+			if (revision !== teamsRevision) return;
+			loaded = false;
+			teamLoadError = value;
+			if (requestedTeamId === null) {
+				notifyError(message(value, "Teams request failed."), {
+					dedupeKey: "teams:list",
+				});
+			}
+		} finally {
+			if (revision === teamsRevision) loadingTeams = false;
+		}
+	}
+
+	async function applyRequestedTeam(): Promise<void> {
+		if (
+			requestedTeamRequestId === null ||
+			handlingRequestedTeam
+		)
+			return;
+		const teamId = requestedTeamId;
+		const requestId = requestedTeamRequestId;
+		const requestedView = requestedTeamView;
+		handlingRequestedTeam = true;
+		try {
+			// Select after this reactive flush so the team detail updates.
+			await tick();
+			if (!isCurrentRequest(teamId, requestId)) return;
+			const applied = await applyTeamNavigationRequest(teamId, {
+				isLoaded: () => loaded,
+				load: async () => {
+					await loadTeams();
+					if (teamLoadError) throw teamLoadError;
+				},
+				hasTeam: (candidateId) => teams.some((team) => team.id === candidateId),
+				isCurrent: () => isCurrentRequest(teamId, requestId),
+				select: async id => {
+					if (id !== null) {
+						const action = requestedView === `requests` ? `admin` : `read`
+						if (!User.Ability.can(action, { type: `team`, id })) throw new Error(`Team ${action} permission is required.`)
+					}
+					return selectTeam(id, true, () => isCurrentRequest(teamId, requestId))
+				},
+			});
+			if (!applied) {
+				if (isCurrentRequest(teamId, requestId)) onRequestedTeamHandled(requestId, undefined, false)
+				return
+			}
+			if (!isCurrentRequest(teamId, requestId)) {
+				return;
+			}
+			if (requestedView && requestedView !== `servers`) teamView = requestedView
+			if (requestedView === `servers`) { teamView = `settings`; modal = `servers` }
+			onRequestedTeamHandled(requestId);
+		} catch (error) {
+			if (isCurrentRequest(teamId, requestId)) {
+				onRequestedTeamHandled(requestId, error);
+			}
+		} finally {
+			handlingRequestedTeam = false;
+		}
+	}
+
+	function isCurrentRequest(teamId: number | null, requestId: number): boolean {
+		return requestedTeamId === teamId && requestedTeamRequestId === requestId;
+	}
+
+	async function loadMembers(): Promise<void> {
+		if (!selectedTeamId) {
+			members = [];
+			memberOrderTeamId = null;
+			return;
+		}
+		const teamId = selectedTeamId;
+		const result = await window.chivServer.teams.members(teamId);
+		if (selectedTeamId !== teamId) return;
+		if (
+			(result.status === 403 || result.status === 404) &&
+			selectedTeamId === teamId
+		) {
+			closeTeam();
+			loaded = false;
+			throw new Error(
+				getCoreErrorMessage(result, `This team is no longer available.`),
+			);
+		}
+		const loadedMembers = await unwrap<TeamMemberRecord[]>(
+			result,
+			"Members request failed.",
+		);
+		if (selectedTeamId !== teamId) return;
+		members = mergeTeamMembers(memberOrderTeamId === teamId ? members : [], loadedMembers);
+		memberOrderTeamId = teamId;
+	}
+
+	async function loadMemberOptions(): Promise<void> {
+		if (!selectedTeamId || !canAdmin) return;
+		loadingOptions = true;
+		try {
+			memberOptions = await unwrap<TeamMemberRecord[]>(
+				await window.chivServer.teams.memberOptions(selectedTeamId),
+				"Available users request failed.",
+			);
+		} catch (value) {
+			notifyError(message(value, "Available users request failed."));
+		} finally {
+			loadingOptions = false;
+		}
+	}
+
+	async function createTeam(): Promise<void> {
+		if (!teamName.trim() || busy) return;
+		busy = true;
+		try {
+			const team = await unwrap<TeamRecord>(
+				await window.chivServer.teams.create(teamName),
+				"Team create failed.",
+			);
+			teamName = "";
+			modal = null;
+			selectedTeamId = team.id;
+			await loadTeams();
+			await loadMembers();
+			currentTeamState.select(team.id)
+			notifySuccess("Team created.");
+		} catch (value) {
+			notifyError(message(value, "Team create failed."));
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function selectTeam(teamId: number | null, confirmed = false, isCurrent: () => boolean = () => true): Promise<boolean> {
+		if (!confirmed) cancelTeamSelection()
+		return teamSelection.run(async () => {
+			if (!confirmed && !await unsavedChanges.canLeave() || !isCurrent()) return null
+			const loadedMembers = teamId === null ? [] : await unwrap<TeamMemberRecord[]>(await window.chivServer.teams.members(teamId), `Members request failed.`)
+			return { teamId, loadedMembers }
+		}, selection => {
+			if (selection.teamId === null) { closeTeam(false); return }
+			selectedTeamId = selection.teamId
+			teamView = `members`
+			modal = null
+			memberOptions = []
+			members = selection.loadedMembers
+			memberOrderTeamId = selection.teamId
+			if (!confirmed) currentTeamState.select(selection.teamId)
+		}, isCurrent)
+	}
+
+	function cancelTeamSelection() {
+		teamSelection.cancel()
+		if (requestedTeamRequestId !== null) onRequestedTeamHandled(requestedTeamRequestId, undefined, false)
+	}
+
+	async function openView(view: typeof teamView): Promise<void> {
+		await navigation.visit(async () => { if (await unsavedChanges.canLeave()) { cancelTeamSelection(); teamView = view } })
+	}
+
+	function closeTeam(cancelPending = true): void {
+		if (cancelPending) cancelTeamSelection()
+		if (modal === `servers`) modal = null;
+		selectedTeamId = null;
+		teamView = `members`;
+		members = [];
+		memberOrderTeamId = null;
+		memberOptions = [];
+		void loadTeams()
+	}
+
+	async function handleDeleted(teamId: number): Promise<void> {
+		gameServerChanged()
+		teamsRevision += 1;
+		if (selectedTeamId === teamId) closeTeam();
+		loaded = false;
+		await loadTeams();
+	}
+
+	async function handleTeamChanged(): Promise<void> {
+		await loadTeams();
+		if (teamLoadError) throw teamLoadError;
+		User.Ability.setOwners(await fetchProfileOwners());
+	}
+
+	async function addMember(user: TeamMemberRecord): Promise<void> {
+		if (!selectedTeamId) return;
+		try {
+			await unwrap<unknown>(
+				await window.chivServer.teams.addMember(selectedTeamId, user.userId),
+				`Invite member failed.`,
+			);
+			notifySuccess(`Invitation sent to ${getAdminName(user)}.`)
+		} catch (value) {
+			notifyError(message(value, `Invite member failed.`))
+		}
+	}
+
+	async function removeMember(userId: number): Promise<void> {
+		if (!selectedTeamId || busy) return;
+		busy = true;
+		try {
+			await unwrap<unknown>(
+				await window.chivServer.teams.removeMember(selectedTeamId, userId),
+				"Remove member failed.",
+			);
+			await loadMembers();
+			notifySuccess("Member removed.");
+			await currentTeamState.refresh()
+			modal = null;
+			removingMember = null;
+		} catch (value) {
+			notifyError(message(value, "Remove member failed."));
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function setPermission(
+		member: TeamMemberRecord,
+		action: string,
+		enabled: boolean,
+	): Promise<void> {
+		if (!selectedTeamId) return;
+		busy = true;
+		const permissions = new Set(member.permissions);
+		if (enabled) permissions.add(action);
+		else permissions.delete(action);
+		try {
+			await unwrap<unknown>(
+				await window.chivServer.teams.setPermissions(
+					selectedTeamId,
+					member.userId,
+					[...permissions],
+				),
+				"Permission update failed.",
+			);
+			notifySuccess(`Permissions saved for ${getAdminName(member)}.`);
+			await loadMembers();
+			await currentTeamState.refresh()
+		} catch (value) {
+			notifyError(message(value, "Permission update failed."));
+		} finally {
+			busy = false;
+		}
+	}
+
+	function message(value: unknown, fallback: string): string {
+		return value instanceof Error ? value.message : fallback;
+	}
+	rememberNavigation(
+		`teamDetail`,
+		() => ({ selectedTeamId, teamView }),
+		async (state, isCurrent) => {
+			if (!state.selectedTeamId) {
+				closeTeam();
+				return;
+			}
+			if (!loaded) await loadTeams();
+			if (!isCurrent()) return;
+			if (!teams.some((team) => team.id === state.selectedTeamId)) {
+				closeTeam();
+				return;
+			}
+			await selectTeam(state.selectedTeamId, true, isCurrent)
+			if (isCurrent() && selectedTeamId === state.selectedTeamId) {
+				teamView =
+					(
+						state.teamView === `requests` &&
+						!User.Ability.can(`admin`, { type: `team`, id: selectedTeamId })
+					) ?
+						`members`
+					:	state.teamView;
+			}
+		},
+	);
+</script>
+
+<section {hidden} class="panel-view teams-panel" class:teams-panel--editor={selectedTeam && (teamView === `guidelines` || teamView === `settings`)} aria-label="My teams">
+	<PanelHeader
+		title={teamView === `guidelines` ? `Guidelines` : teamView === `settings` ? `Settings` : teamView === `requests` ? `Join requests` : (
+			(selectedTeam?.name ?? "My teams")
+		)}
+		eyebrow={selectedTeam ? selectedTeam.name : "Account"}
+		leadingIcon={selectedTeam ? "fa-arrow-left" : null}
+		leadingLabel={teamView !== `members` ? `Back to team` : `Back to teams`}
+		leadingNavigationBack={requestedTeamRequestId === null}
+		onLeading={selectedTeam ?
+			async () => {
+                if (!await unsavedChanges.canLeave()) return
+				cancelTeamSelection()
+				if (teamView !== `members`) teamView = `members`
+				else closeTeam()
+			}
+		:	null}
+	>
+		<svelte:fragment slot="subtitle">
+			{#if selectedTeam}<small
+					>{members.length} {members.length === 1 ? "member" : "members"}</small
+				>{/if}
+		</svelte:fragment>
+		<svelte:fragment slot="trailing">
+			{@render headerActions?.()}
+			{#if selectedTeam && teamView === `members` && (canAdmin || selectedTeam.ownerUserId === $authState.user?.id || User.is(`superadmin`))}
+				{#key selectedTeam.id}
+					<TeamActions {busy} onSettings={() => void openView('settings')} />
+				{/key}
+			{/if}
+			{#if !selectedTeam}
+				<IconButton
+					icon="fa-rotate"
+					ariaLabel="Refresh teams"
+					disabled={busy}
+					onClick={loadTeams}
+				/>
+			{/if}
+		</svelte:fragment>
+	</PanelHeader>
+
+	{#if selectedTeam}
+		<div
+			class="teams-detail panel-subview grid-stack gap-1"
+			class:teams-detail--guidelines={teamView === `guidelines`}
+			use:navigationScroll={`teams-detail`}
+		>
+            {#if teamView === 'guidelines'}
+              {#key selectedTeam.id}<TeamGuidelines teamId={selectedTeam.id} canEdit={User.Ability.can('edit', { type: 'team', id: selectedTeam.id })} onHeaderActions={actions => headerActions = actions} />{/key}
+            {:else if teamView === 'settings'}
+              {#key selectedTeam.id}<TeamSettings team={selectedTeam} canEdit={canAdmin} onChanged={handleTeamChanged} onDeleted={handleDeleted} onHeaderActions={actions => headerActions = actions} onOpenServers={() => { cancelTeamSelection(); modal = `servers` }} />{/key}
+            {:else if teamView === `requests`}
+              {#if canAdmin}{#key selectedTeam.id}<TeamRequests teamId={selectedTeam.id} onChanged={handleTeamChanged} onHeaderActions={actions => headerActions = actions} />{/key}{/if}
+            {:else}
+				{#if canAdmin}
+					{#key selectedTeam.id}<DiscordTeamTile
+							teamId={selectedTeam.id}
+						/>{/key}
+				{/if}
+				<TeamDetail
+					{members}
+					{memberOptions}
+					{canAdmin}
+					{busy}
+					{loadingOptions}
+					onLoadOptions={loadMemberOptions}
+					onAdd={addMember}
+					onRemove={(userId) => {
+						removingMember =
+							members.find((member) => member.userId === userId) ?? null;
+						modal = `remove`;
+					}}
+					onPermission={(member, action, enabled) =>
+						void setPermission(member, action, enabled)}
+				/>
+            {/if}
+		</div>
+	{:else}
+		<div
+			class="teams-list panel-subview gap-1"
+			use:navigationScroll={`teams-list`}
+		>
+			<div class="teams-list__intro gap-1">
+				<InfoNotice
+					message="If you are part of a clan, talk to your leader for an invite, or try joining their team with the 'Join team'-button 😄"
+					icon="fa-users"
+				/>
+				<TileGrid>
+					<Tile
+						title="Create team"
+						icon="fa-plus"
+						subtitle="New team for your clan or group"
+						onClick={() => (modal = `create`)}
+					/>
+					<Tile
+						title="Join team"
+						icon="fa-users"
+						subtitle="Find your clan or team"
+						onClick={() => (modal = `join`)}
+					/>
+				</TileGrid>
+			</div>
+
+			<section
+				class="teams-list__memberships gap-1 margin-top-2"
+				aria-labelledby="my-team-memberships"
+			>
+				<h2 id="my-team-memberships">{User.is(`superadmin`) ? `All teams` : `Your teams`}</h2>
+				{#each teams as team (team.id)}
+					<TeamListRow
+						{team}
+						currentUserId={$authState.user?.id ?? null}
+						onClick={() => void navigation.visit(() => selectTeam(team.id))}
+					/>
+				{:else}
+					<EmptyState
+						title="No teams"
+						message="Create a team to share server profiles."
+					/>
+				{/each}
+			</section>
+		</div>
+	{/if}
+</section>
+
+{#if modal === `create`}
+	<ConfirmModal
+		title="Create team"
+		message="Give your team a name."
+		icon="fa-users"
+		iconType="light"
+		confirmLabel="Create team"
+		confirmTone="primary"
+		cancelLabel="Cancel"
+		busyLabel="Creating..."
+		{busy}
+		confirmDisabled={!teamName.trim()}
+		manageOverlayState
+		onConfirm={() => void createTeam()}
+		onCancel={() => (modal = null)}
+	>
+		<form on:submit|preventDefault={() => void createTeam()}>
+			<Input
+				label="Name"
+				value={teamName}
+				maxlength={100}
+				disabled={busy}
+				onChange={(value) => (teamName = value)}
+			/>
+		</form>
+	</ConfirmModal>
+{:else if modal === `servers` && selectedTeam}
+	{#key selectedTeam.id}
+		<TeamServersModal
+			team={selectedTeam}
+			{canAdmin}
+			onChanged={handleTeamChanged}
+			onClose={() => (modal = null)}
+		/>
+	{/key}
+{:else if modal === `join`}
+	<JoinTeamModal onClose={() => (modal = null)} />
+{:else if modal === `remove` && removingMember}
+	<ConfirmModal
+		title="Remove member?"
+		message={`Are you sure you want to remove ${getAdminName(removingMember)} from ${selectedTeam?.name}?`}
+		icon="fa-user-minus"
+		iconType="light"
+		confirmLabel="Remove member"
+		cancelLabel="Cancel"
+		busyLabel="Removing..."
+		{busy}
+		manageOverlayState
+		onConfirm={() => void removeMember(removingMember!.userId)}
+		onCancel={() => (modal = null)}
+	/>
+{/if}
+
+<style lang="scss">
+	.teams-list {
+		display: grid;
+		align-content: start;
+	}
+	.teams-list__intro,
+	.teams-list__memberships {
+		display: grid;
+	}
+	.teams-list__memberships h2 {
+		margin: 0;
+		font-size: var(--font-size-lg);
+	}
+	.teams-panel {
+		container-type: inline-size;
+		height: 100%;
+		padding: var(--panel-padding);
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr);
+		gap: var(--gutter-lg);
+	}
+	.teams-panel :global(.panel-header) { margin: 0; }
+	@container (max-width: 480px) {
+		.teams-panel--editor :global(.panel-header) { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+		.teams-panel--editor :global(.panel-header__identity) { grid-column: 1 / -1; grid-row: 2; }
+		.teams-panel--editor :global(.panel-header__trailing) { grid-column: 2; grid-row: 1; }
+	}
+	.teams-list,
+	.teams-detail {
+		min-height: 0;
+		overflow: auto;
+	}
+	.teams-detail--guidelines {
+		overflow: hidden;
+	}
+
+	:global(.panel-header__identity > small) {
+		color: var(--color-light-tertiary);
+	}
+</style>

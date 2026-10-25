@@ -1,0 +1,950 @@
+# Changelog
+
+## 1.0.0
+
+- Released version 1.0.0 BETA
+
+## 1.0.1
+
+- Fixed release validation, i think
+
+## 1.0.2
+
+- added preflight commit head check
+
+## 1.0.3
+
+- remove .NET setup and redundant npm commands from release workflow
+
+## 1.0.4
+
+- Added retries for NPM registry - It seems unstable..
+
+## 1.0.5
+
+- Removed npm audit from pre-flight ci
+
+## 1.0.6
+
+- bugfix on npm dep sec
+
+## 1.0.7
+
+- fixed small github private repo issue
+
+## 1.0.8
+
+- Made dependabot optional
+
+## 1.0.9
+
+- Fixed an Host API failure
+
+## 1.0.10
+
+- Bug with test unit
+
+## 1.0.11
+
+- Added better user flow for first time logins.
+
+## 1.0.12
+
+- Fixed CI bug
+
+## 1.0.13
+
+- CI bugfix
+
+## 1.0.14
+
+- Improved isMoving
+
+## 1.0.15
+
+- Fixed isMovement so that commands do not interrupt gameplay
+
+## 1.0.16
+
+- Moved icons to local
+- Fixed startup not loading correctly
+- Added toggle on system tray click
+
+## 1.0.17
+
+- Added suspension reason for banned user
+
+## 1.0.18
+
+- Fixed security in repo being overly-angry at me
+
+## 1.0.19
+
+- Tiny fix on test unit
+
+## 1.1.0
+
+- Improved user experience on first start-up
+- Added explanations around in the app
+- Added the ability to request access to a team
+- Added a account checklist for onboarding
+- Made playfabID a must for admins
+- Added confetti!!!
+- Added debug page
+- Added easier navigation between profiles and teams
+- Added support for changing Chivalry 2 console key
+- Added check to see if user is connected to TWA discord
+- Added "Are you sure"-dialogue boxes on sensitive clicks
+- Added "Discard changes? Yes/No" on certain pages, to avoid accidental deletiton
+- Improved UI structure for "My teams"
+- Improved auto update message
+- Users are now forced to update on major versions
+- Added a glow on debug button, because people love glowy things
+
+## 1.1.1
+
+- Discord bot now drops update notices
+- Team owners & admins can now delete their teams. Exciting
+
+## 1.1.2
+
+- Bug fixes
+
+## 1.2.0
+
+- Added right-click duplicate and delete for actions and commands
+- Added empty, team, and default options when creating profiles
+- Replaced Reset with Restore while keeping server claims
+- Enabled superadmins to edit the default profile
+- Improved team and personal profile headings
+- Updated the default actions and commands
+
+## 1.2.1
+
+- Added a Default-editing warning for superadmins.
+- Create/Restore dialogs now expand to fit dropdowns.
+- Added SFX for profile action dragging, clicks, etc
+- Bug fixes
+
+## 1.2.2
+
+- Update to bot and communication with bot
+- Added new user commands
+
+## 1.2.3
+
+- Bug fix
+
+## 1.2.4
+
+- Improved UX for game server actions
+
+## 1.3.0
+
+- Large changes to architecture to ensure optimization of large datasets
+- Added support for showing players in claimed servers
+
+## 1.4.0
+
+- Optimized immense lag in player archive filter
+- Fixed versioning issue
+- Added pagination to notifications
+- Added ability for superadmin to notify users and teams
+- Added logic gate checks to player actions to ensure no duplicate punishment logging.
+- Added a "delete all" button to notification panel
+- Added the ability to see players in your server
+- On a server, added a button to team if you are part of the owner team
+- Changed "Mine" filter tag to "Claimed" in server browser
+- On a team, added "claimed servers" that links to server browser with "Claimed" enabled
+- Added ability to enable/disable profiles per user
+- Added ability to open context menu on profiles
+- Added ability to duplicate a profile from context menu
+- Changed "Assigned servers" to "Claimed servers" on profile page, for text normalization
+- Admin: Show version in user rows
+- Player rows now show them as red bordered if they are banned, yellow if they are recently punished
+- Added a "No rank" filter tag in player archives
+- Hovering over a punished player shows their current punishment/offense
+- Tracking online & game status of all 5.8 million players
+- Your avatar, and "My teams" nav button gets a red circle with a number if you have any pending members for your team or other pending things
+- Changed max ban time in profile command builder to 1337 hours
+- Hid "ban time" when type is not "ban"
+- Enabled "Online" tag for player archives
+- Enabled showing which server a online player is in, as long as the team has claimed the server that player is in
+
+## 1.4.1
+
+- Users now get to set console key during onboarding
+- Superadmins can now create profile presets
+
+## 1.4.2
+
+- Fixed permission issue for teams
+
+## 1.4.3
+
+- Optimized data aggrregation
+- Optimized cleanup jobs
+- Bug fixes
+
+## 1.5.0
+
+- Ability to transfer team ownership
+- Added more tooltip explanations around the app
+- Improved UI & UX for team page
+- Added ability to rename team
+- Improved UI for "My Teams" page
+- Rewrote certain text explanations to avoid confusion
+- Added app shortcuts in system tray
+- Removed UI clutter from player page
+- You can now view player offenses by 30 days, 90 days, all time on a player profile
+- Added a detailed tooltip for more complex uses like ie. offenses
+- Added better formatting for action and offense types
+- Misc UI cleanup and improvements
+
+## 1.5.1
+
+- Added navigation history management with back and forward func
+- Introduced keybind settings for console and overlay actions
+- Created KeybindSetting component for user-defined keybindings
+- Implemented ShortcutRegistry for managing keyboard shortcuts
+- Enhanced IconButton and PanelHeader components to support navigation actions
+- Updated core types to include new keybinds and navigation API
+- Added tests for navigation history and shortcut registration
+- Added custom keybind for toggling Spellbook
+- Added custom keybind for Quick Open Player
+- Added conflict checking for keybinds
+- Bug fixes
+- Added security check for wanted auto banning to ensure user has admin before trying
+
+## 1.6.0
+
+- Improved gamer username normalization
+- Grreatly improved speed of player search by 270%, still slow but better!
+- Improved search accuracy by adding score relevancy
+- Added in-game debug mode (Available in settings)
+- Improved background command allowance detection
+- Cleanup on user profile
+- Improved onboarding
+- Bug fixes
+
+## 1.6.1
+
+- Fixed bug where adminsay and serversay stopped working
+- Improved debug overlay
+- Improved in-game communication with console
+- Bug fixes
+- Fixed weird UI for buttons in game server panel
+
+## 1.7.0
+
+- HUGE UPDATE, some say the biggest, no one does huge updates like me, in fact, i invented huge updates. People say 'magic... how do you do it?', big, fantastic, update
+- Redesigned the entire core command queue system
+- Optimized core to allow in-game commands with 10 commands per second
+- Improved user experience: First time users
+- Improved user experience: For new updates
+- Added validation for: In game video mode
+- Added validation for: In-game console Keybind
+- Added validation for: In-game console enabled
+- Added protective layer to ensure admin doesn't execute commands if keybinds are not set.
+- Fixed bug where ALT and chat keys would not count as "is moving"
+- Improved notification system to ensure delivery both in-game and out of game
+- Added more settings in... settings
+- Added debug (F5) and debug visualization (F6) while in-game
+- Normalized components so that we follow DRY principle
+- Improved profile page by splitting it into 3 tabs
+- Added changelogs in debug modal
+- Added better warning and errors for various things
+- Moved ownership for Game Servers to Teams, instead of Profiles
+- Improved dashboard graph colors
+- Profiles now can attach themselves to servers claimed/owned by a team uniquely
+- Private profiles can attach themselves to any server owned by any team user is in, non-uniquely
+- Optimized search to be faster. From ~12.4 seconds down to ~2.3 seconds
+- Moved all notification types into one shared system
+- Tons of minor UI changes
+- Improved sorting on team members
+- Wanted: Checks for wanted players every second
+- Wanted: Optimized caching and request compute per call
+- Wanted: Hive mind now gets notified if they are on server
+- Wanted: Made it clearer which wanted players are mock wanted and not
+- Wanted: Improved wanted system
+- Wanted: Players now claims a player to ban
+- A lot of other small bug fixes and tweaks
+
+## 1.8.0
+
+- HUGE UPDATE, some say the biggest, no one does huge updates like me, in fact, i invented huge updates. People say 'magic... how do you do it?', big, fantastic, update
+- Redesigned the entire core command queue system
+- Optimized core to allow in-game commands with 10 commands per second
+- Improved user experience: First time users
+- Improved user experience: For new updates
+- Added validation for: In game video mode
+- Added validation for: In-game console Keybind
+- Added validation for: In-game console enabled
+- Added protective layer to ensure admin doesn't execute commands if keybinds are not set.
+- Fixed bug where ALT and chat keys would not count as "is moving"
+- Improved notification system to ensure delivery both in-game and out of game
+- Added more settings in... settings
+- Added debug (F5) and debug visualization (F6) while in-game
+- Normalized components so that we follow DRY principle
+- Improved profile page by splitting it into 3 tabs
+- Added changelogs in debug modal
+- Added better warning and errors for various things
+- Moved ownership for Game Servers to Teams, instead of Profiles
+- Improved dashboard graph colors
+- Profiles now can attach themselves to servers claimed/owned by a team uniquely
+- Private profiles can attach themselves to any server owned by any team user is in, non-uniquely
+- Optimized search to be faster. From ~12.4 seconds down to ~2.3 seconds
+- Moved all notification types into one shared system
+- Tons of minor UI changes
+- Improved sorting on team members
+- Wanted: Checks for wanted players every second
+- Wanted: Optimized caching and request compute per call
+- Wanted: Hive mind now gets notified if they are on server
+- Wanted: Made it clearer which wanted players are mock wanted and not
+- Wanted: Improved wanted system
+- Wanted: Players now claims a player to ban
+- A lot of other small bug fixes and tweaks
+
+## 1.8.1
+
+- HUGE UPDATE, some say the biggest, no one does huge updates like me, in fact, i invented huge updates. People say 'magic... how do you do it?', big, fantastic, update
+- Redesigned the entire core command queue system
+- Optimized core to allow in-game commands with 10 commands per second
+- Improved user experience: First time users
+- Improved user experience: For new updates
+- Added validation for: In game video mode
+- Added validation for: In-game console Keybind
+- Added validation for: In-game console enabled
+- Added protective layer to ensure admin doesn't execute commands if keybinds are not set.
+- Fixed bug where ALT and chat keys would not count as "is moving"
+- Improved notification system to ensure delivery both in-game and out of game
+- Added more settings in... settings
+- Added debug (F5) and debug visualization (F6) while in-game
+- Normalized components so that we follow DRY principle
+- Improved profile page by splitting it into 3 tabs
+- Added changelogs in debug modal
+- Added better warning and errors for various things
+- Moved ownership for Game Servers to Teams, instead of Profiles
+- Improved dashboard graph colors
+- Profiles now can attach themselves to servers claimed/owned by a team uniquely
+- Private profiles can attach themselves to any server owned by any team user is in, non-uniquely
+- Optimized search to be faster. From ~12.4 seconds down to ~2.3 seconds
+- Moved all notification types into one shared system
+- Tons of minor UI changes
+- Improved sorting on team members
+- Wanted: Checks for wanted players every second
+- Wanted: Optimized caching and request compute per call
+- Wanted: Hive mind now gets notified if they are on server
+- Wanted: Made it clearer which wanted players are mock wanted and not
+- Wanted: Improved wanted system
+- Wanted: Players now claims a player to ban
+- A lot of other small bug fixes and tweaks
+
+## 1.8.2
+
+- Fixed double quote issue for serversay messages in the Wanted system
+
+## 1.9.0
+
+- Bug fix: game server now clears when you leave the game
+- Improvement: SpellBook now reports correct warning for: Game not running, in main menu, not in a game server, game not focused
+- Keybind for in-game console is now persistent
+- Added 12.7 million historic usernames (Thank you Report 😭)
+- Added a new tick action to enrich players without statistics
+
+## 1.9.1
+
+- Search: Improved search algorithm
+- Search: Optimized api for handling 12.9 million players
+- Search: Added ability to search alt names
+- Search: Visually show partial search match results
+- Search: Display player alias if search matches it
+- Player rows now has dynamic font sizing for names
+
+## 1.9.2
+
+- Removed limit for alias
+
+## 1.10.0
+
+- Added tighter check on canExecuteCommand checks
+- Actions doesn't become delayed anymore
+- Added styling to game server menu item if you're in a server
+- Fixed 'add wanted player' modal
+- Fixed quick actions being available when not in the game
+- Improved app handling of server state and data
+- Relaxed background pulse commands
+- Improved tooltip handling
+
+## 1.10.1
+
+- Core Queue now prioritizes user actions infront of system actions
+- Tuned disabling mouse during roundtrip for app driven user actions
+
+## 1.11.0
+
+- Make it impossible to perform actions that contain command type ban or kick on yourself
+- Added ruleset system
+- Created a mono-system for handling all non-real time systems (The Action system)
+- Integrated Wanted system into the shared action system
+- Integrated discord into the action system
+- Integrated ruleset system into the action system
+- Admins on a game server now enrich players without a rank
+- SpellBook now remembers historic names for servers
+- Improved player panel with tabs
+- Added unban ability to player profile, context menu, and offense
+- Added the ability to perform action commands even when not in-game
+- Hooked notifications into request action with the ability to cancel
+- Bug fix: SpellBook no longer interrupts you while you're in a menu
+- Added stronger checks for duplicate entry attempt of offenses
+- Improved context menu readability for fast player action ability
+- SpellBook now uses your Display name with discord name as fallback, everywhere
+- SpellBook now keeps track of how many times a player profile has been visited
+- Notifications now become "read" by hovering over them in notifications. You no longer need to click "Read"
+- Improved player profile UX & UI
+- Added a preview for command builder's serversay and adminsay
+- legends & Preview for command builder is now shared between quick-actions' adminsay & serversay, and command builder in profile's adminsay & serversay
+- Made offense_type tag pretty for serversay and adminsay
+- In command builder's serversay and adminsay: Added past tense _pt tag for offense_type, ie ban[ned]
+- Made command builder's serversay & adminsay's legend prettier and more informative
+- Only teams that has claimed a game server can now edit its details
+- Improved notification read status
+- Improved UI on multiple pages and states
+- Added incremental ban ability
+- Added STAR WARS CREDITS lol (thanks GPT 6 Astra for the slop)
+- Added support for custom steps to ranges, and improved it!
+- Added incremental banning with different ban count parameters
+- Implemented the master profile, one profile to rule them all
+- Created discord /action: allowing you to communicate to your game server
+- Created discord command /wanted-add : To add a playfab ID to wanted system
+- Created discord command /wanted-remove : To remove or revert a playfab ID to wanted system
+- Created discord command /unban : Ban a player on a game server by playfab ID
+- Created discord command /ban : Ban a player on a game server by playfab ID
+- Created -silent version of all discord commands
+- Sentinel Mode now turns off after a minute, automatically
+- Cached CPU intensive endpoints
+- Cleaned up admin permissions for discord
+- Created discord command /serversay : Allowing you to speak directly into the game as the server
+- Created discord command /adminsay : Allowing you to speak directly into the game as yourself
+- Created discord command /wizard : Allowing admins to do a simple discord installation walkthrough
+- Added a channel for posting and updating /help in /config command
+- Allowed all discord guilds to show real time statistics
+
+## 2.0.0
+
+- Bump to major version
+
+## 2.0.1
+
+- Fixed DB schema bug
+
+## 2.1.0
+
+- Added better user sorting for admin panel
+- Added "Trigger once" in ruleset rules
+
+## 2.1.1
+
+- Added better user sorting for admin panel
+- Added "Trigger once" in ruleset rules
+
+## 2.2.0
+
+- Fixed unban and ban not working correctly with playfab ID
+- Added an extra step to reveal offense-history for /unban
+- Added chat variable: admins_online
+- Added chat variable: players_online (players online in the server)
+- Added chat variable: player_rank
+- Added chat variable: last_login & last_login_alt
+- Added chat variable: playtime (number, in hours)
+- Added chat variable: current_time (admin timezone)
+- Added chat variable: current_time_utc
+
+## 2.2.1
+
+- Ensured that rules don't trigger at the same time by introducing a bit of randomness
+- Fixed ranges in advanced filters
+- Fixed wanted sort
+
+## 2.3.0
+
+- Added player history timeline
+- Bugfixes all around
+- Improved UI for profile actions
+- Added chat variable: Max players
+- Added discord command: /sb-login for those without a computer
+- Improved unban menu in context menu for request action and in-game action
+- Added support for direct app uri from external sources
+- Added ability to mass-import wanted players
+
+## 2.3.1
+
+- Bug fixes
+- Fixed download links
+- Prepared front-end for website integration
+
+## 2.4.0
+
+- Feature: Added FAQ section in help modal
+- Feature: New date picker! yaaay
+- Improvement: Wanted player rows have a single color type
+- Improvement: Updated player rows for more logical colors based on offense
+- Improvement: Improved search for Server page
+- Improvement: Added favicon across all systems
+- Improvement: Improved process handling on start-up to avoid port dconflict
+- Improvement: You can no longer kick or ban yourself 😭
+- Improvement: Cleaned up UI for player archive
+- Improvement: Cleaned up UI for player filters
+- Improvement: Ruleset now warns you if you try to create a rule for player action.
+- Improvement: Team members do not switch places due to sorting post-visiting the page. It now only sorts on load
+- Improvement: Added wanted origin source
+- Improvement: Notifications no longer hides parts of long texts
+- Bug fix: If a server changes slots, it becomes duplicated. (Thanks DR3 Clan for reporting)
+- Bug fix: Checkbox & Radio buttons sometimes makes the page wrapper collapse
+- Bug fix: Fixed an error trying to invoke a remote method "core:actionRecipe"
+
+## 2.5.0
+
+- Bug fix: Filter button did not close the modal
+- Bug fix: Removed the possibility of players with NULL as playfabid to be viewable or interactable
+- Varius improvements to minor UI details
+- Feature: Added Evidence system
+- Feature: Added video system
+- Feature: Added comment system
+- Feature: Added Discord embed for images and videos
+
+## 2.5.1
+
+- Bug fixes with OPS
+
+## 2.5.2
+
+- UI tweaks around evidence and wanted page
+
+## 2.6.0
+
+- Feature: Finally completed dashboard! Enjoy
+- Feature: Updated Statistics on Discord
+- Feature: SpellBook will now try and detect if your action builder setup is incorrect
+- Feature: SpellBook now finds Chivalry 2 on Steam and Epic and creates shortcut for you in SpellBook system tray
+- Change: Added caching for high-bandwidth endpoints
+- Change: Display names cannot now be less than 3 characters long
+- Bugfix: Ensured display name is used and not discord handle
+
+## 2.6.1
+
+- Fixed an bug with import to dashboard.
+
+## 2.6.2
+
+- Bug fixes on dashboard
+- Added more fields on discord stats
+- Interprolated missing data in timeline
+
+## Unreleased
+
+- Bugfixes & optimization for dashboard
+
+## 2.7.0
+
+- Fixed a critical bug where dashboard would hang the database for 50 seconds.
+
+## 3.0.0
+
+- Big Feature: Website: Our new SpellBook website is live! Check it out at chivalry2.dev.
+- Big Feature: Timeline: Player profiles now include a history of notes, moderation, Wanted changes, and server visits. Older entries load as needed.
+- Big Feature: Evidence: You can now submit screenshots and video clips up to one minute long.
+- Big Feature: Discord: Take actions, unban players, send server messages, and manage Wanted entries directly from Discord, with public/private options, status updates, and cancellation where supported.
+- Big Feature: Rulesets: Create rules that run profile actions on a schedule or when certain conditions are met.
+- Big Feature: Servers: New server dashboards show population graphs, moderation stats, ownership, live player counts, and connected admins.
+- Big Feature: Actions: Action requests, rulesets, and Wanted actions now run through one system, with saved runs and results.
+- Big Feature: Core - Servers: Live server and player tracking has been rebuilt to keep the app, dashboards, and Discord better in sync.
+- Big Feature: Dashboard: A refreshed dashboard with Global, Your teams, and You views, plus time filters.
+- Big Feature: Action Requests: Track requests from start to finish with statuses, details, expiry times, history, notifications, cancellation, and retries.
+- Big Feature: Player Search: Search can now use an optional index, match word prefixes, and fall back to fuzzy matching when an exact search comes up empty.
+- Big Feature: Discord - Permissions: Members with the configured Discord role can use supported player lookups without a SpellBook account. They'll only see public information.
+- Big Feature: Profiles: Repeat offenses can now lead to progressively longer bans.
+- Big Feature: Evidence: Browse screenshots and videos in galleries on player and Wanted profiles.
+- Big Feature: Evidence: Share evidence with public links, complete with image and video previews.
+- Big Feature: Discord: Link your Discord server and configure SpellBook roles and dedicated Updates, Help, and Statistics channels.
+- Big Feature: Teams: Customize your team with logos, names, tags, languages, Discord links, and custom variables.
+- Big Feature: Teams: Teams can now keep Markdown guidelines with edit history, author details, and protection against overwriting someone else's changes.
+- Big Feature: Timeline: Manual admin actions and Serversay/Adminsay messages now appear in player history, with related commands grouped together to keep things readable.
+- Big Feature: Wanted: Add multiple players at once, see results for each one, retry failed entries, and check where entries came from.
+- Big Feature: Evidence: New review queue for evidence involving players who aren't already Wanted.
+- Bugfix: Core - Game State: Players and servers no longer linger in live tracking after leaving a server, closing the game, or losing Core connectivity.
+- Bugfix: Servers: Fixed an issue that could interrupt server sync after authentication expired.
+- Bugfix: Dashboard: Fixed an issue that could make dashboards take far too long to load.
+- Bugfix: Evidence: Fixed evidence files sometimes failing to load after a restart.
+- Bugfix: Player Archive: Browsing no longer needs to count the entire player database. Searches still return exact totals and support pagination.
+- Bugfix: Moderation: Added safeguards against banning or kicking yourself, duplicate bans, and conflicting queued bans.
+- Bugfix: Dashboard: Corrected moderation, Wanted, message, and admin statistics, and improved presence updates.
+- Bugfix: Fixed an issue where Wanted system didn't atomic claim a ban, resulting in double-bans for different reasons, ie. wanted perma + low-level
+- Bugfix: Servers: Server rosters now show observed connection times, and player counts no longer get stuck after people leave.
+- Bugfix: Servers: Fixed duplicate listings caused by server name or slot changes, and started keeping previous server names.
+- Bugfix: Evidence: Improved video processing and fixed an AV1 encoding issue.
+- Bugfix: Rulesets: Interval rules are now spread out instead of firing all at once, and missed intervals won't replay in bulk.
+- Bugfix: Teams: Fixed members shifting around during refreshes and improved protection against losing unsaved changes.
+- Bugfix: Controls: Fixed checkboxes and radio buttons affecting nearby layouts, and improved sliders and date pickers.
+- Bugfix: Profiles: Improved defaults when creating or duplicating actions and commands. Zero-millisecond delays now work too.
+- Bugfix: Notes: Fixed submitted drafts sticking around after posting, and improved Discord-style formatting.
+- Bugfix: Player Search: Improved matching for unusual fonts, decorative characters, and older player names.
+- Feature: Rulesets: Trigger once now persists, with per-target cooldowns and safeguards against repeating actions when the result is uncertain.
+- Feature: Evidence: Uploads now show progress and let you retry individual files. You can navigate the app without losing progress while it's running.
+- Feature: App: Commands can now only be run on servers your team has claimed.
+- Feature: Evidence: Comments now support formatting, references, and clickable video timestamps.
+- Feature: Timeline: Evidence submissions and comments now appear in player history, with links to view them.
+- Feature: Evidence: Evidence now includes links to offenses, comment counts, and video playback views.
+- Feature: Evidence: Duplicate files are detected so existing evidence media can be reused.
+- Feature: Offenses: When unbanning a player, choose whether to keep the offense history or remove the offense too. You can also remove offenses separately.
+- Feature: Rulesets: You can now pause rulesets when needed.
+- Feature: Rulesets: Date and time settings are now timezone-aware, with saved ordering, rule counts, and better draft validation.
+- Feature: Discord: Use /sb-login to register or check your access without opening the desktop app.
+- Feature: Discord: /sb-config has been replaced by /sb-wizard, with settings that match the app.
+- Feature: Discord: Finding roles and channels is easier, with search, proper category ordering, and unavailable channels disabled.
+- Feature: Players: More ways to fill in missing player statistics, including automatic XP updates for players on the current server.
+- Feature: Player Links: Copy profile links that open a player directly in SpellBook from the web or Discord.
+- Feature: Player Search: When an older name matches your search, you'll see it next to the player's current name.
+- Feature: Dashboard: Charts are now interactive, with zoom and selectable data.
+- Feature: Servers: The server browser now detects game modes, supports TO/FFA/Duels filters, and lets you search by exact server ID.
+- Feature: Servers: Live ping is now displayed, and server sorting considers both ping and player count.
+- Feature: Servers: Players without a matched identity stay visible in live rosters. Profiles and moderation become available once they're identified.
+- Feature: Servers: Change the name shown in SpellBook through a dedicated dialog. Only editors on the owning team can rename it.
+- Feature: Player Archive: More filtering options, combined views, and last-active date filtering.
+- Feature: Timeline: Team joins, departures, and milestones in global admin/activity rankings now appear in history.
+- Feature: Timeline: Server visits now show population, ping, and estimated connection time.
+- Feature: Adding someone to a team now requires them to accept it
+- Feature: You can now browse deleted notifications
+- Feature: Security improvement for teams and wanted system
+- Feature: Messages: Adminsay is now available in profile commands.
+- Feature: Messages: More message variables for online admins and players, rank, last login, playtime, time, and server capacity.
+- Feature: Messages: Clearer message previews, character counts, and a more useful guide to available variables.
+- Feature: Teams: Team logos now appear across dashboards and team lists.
+- Feature: Teams: Share team variables and clan identity across your claimed servers.
+- Feature: Forms: Missing or invalid fields are highlighted when saving a profile or ruleset, and focus moves straight to the first issue.
+- Feature: Profiles: SpellBook now warns you when an offense doesn't appear to match the wording of the selected action.
+- Feature: Profiles: Choose which actions appear in the current-server Actions menu.
+- Feature: Rulesets: Clearer information on who each rule affects, plus warnings about repeated messages and player actions.
+- Feature: Accounts: New admins can provide their PlayFab ID before approval.
+- Feature: Accounts: Jump straight to your player profile from your account.
+- Feature: Help: New Help and FAQ sections with onboarding, changelogs, and log-sharing instructions.
+- Feature: Installation: SpellBook now detects installed Steam and Epic editions and lists them in the tray.
+- Feature: Guides: New public guide with installation steps, screenshots, and videos. Unfinished sections are clearly marked.
+- Feature: Downloads: The latest stable installer now has one download link, with browser handoff pages for app links and Discord callbacks.
+- Feature: Players: Profile visit counts and clearer labels for SpellBook admins, creators, and teammates.
+- Feature: Servers: Estimated server locations and more technical details are now available.
+- Feature: Discord: /sb-info now includes links to the download, website, Discord, and guide.
+- Feature: Discord - Permissions: Help now shows who can use each command.
+- Feature: Navigation: Back now returns to the page you came from when possible, rather than always following the menu structure.
+- Feature: Core - AFK: Players are now marked AFK after 25 seconds.
+- Feature: Core - Sentinel: Sentinel Mode now automatically turns off after one minute.
+- Feature: Notifications: Hover over a notification for half a second to mark it as read. Notifications you manually mark unread stay unread, and longer text is easier to read.
+- Change: Core - Commands: Improved focus, keyboard, and mouse handling so SpellBook interrupts you less.
+- Change: Core - Commands: Commands you trigger now take priority over background tasks and have more time to complete.
+- Change: Core - Performance: Improved Core's memory handling.
+- Change: Dashboard: Improved refreshing, retries, and error handling.
+- Change: Player Search: Results now put more emphasis on recent activity, XP, and profile visits.
+- Change: Players: Wanted, ban, and recent-offense indicators are now easier to understand.
+- Change: Profiles: Clearer ban-duration settings and command summaries. Kicks no longer show irrelevant duration controls.
+- Change: Profiles: Renamed Offenses to Local Offenses.
+- Change: Wanted: Cleaner tabs, newest-first sorting, and confirmation before removing or reverting entries.
+- Change: Teams: Team ownership settings have moved into Settings. Deleting a team now requires the owner and a typed confirmation.
+- Change: Navigation: My teams now lives in the main menu, with badges for pending requests.
+- Change: Discord: Configured ban actions now use /sb-action. Dedicated /sb-ban commands remain disabled.
+- Change: Accounts: Display names are used consistently, with Discord usernames as a fallback. Display names must be at least three characters.
+- Change: Credits: Added animated credits.
+- Change: Analysis: Removed the unfinished Analysis page and its navigation entry
+
+## 3.0.1
+
+- Big Feature: Website: Our new SpellBook website is live! Check it out at chivalry2.dev.
+- Big Feature: Timeline: Player profiles now include a history of notes, moderation, Wanted changes, and server visits. Older entries load as needed.
+- Big Feature: Evidence: You can now submit screenshots and video clips up to one minute long.
+- Big Feature: Discord: Take actions, unban players, send server messages, and manage Wanted entries directly from Discord, with public/private options, status updates, and cancellation where supported.
+- Big Feature: Rulesets: Create rules that run profile actions on a schedule or when certain conditions are met.
+- Big Feature: Servers: New server dashboards show population graphs, moderation stats, ownership, live player counts, and connected admins.
+- Big Feature: Actions: Action requests, rulesets, and Wanted actions now run through one system, with saved runs and results.
+- Big Feature: Core - Servers: Live server and player tracking has been rebuilt to keep the app, dashboards, and Discord better in sync.
+- Big Feature: Dashboard: A refreshed dashboard with Global, Your teams, and You views, plus time filters.
+- Big Feature: Action Requests: Track requests from start to finish with statuses, details, expiry times, history, notifications, cancellation, and retries.
+- Big Feature: Player Search: Search can now use an optional index, match word prefixes, and fall back to fuzzy matching when an exact search comes up empty.
+- Big Feature: Discord - Permissions: Members with the configured Discord role can use supported player lookups without a SpellBook account. They'll only see public information.
+- Big Feature: Profiles: Repeat offenses can now lead to progressively longer bans.
+- Big Feature: Evidence: Browse screenshots and videos in galleries on player and Wanted profiles.
+- Big Feature: Evidence: Share evidence with public links, complete with image and video previews.
+- Big Feature: Discord: Link your Discord server and configure SpellBook roles and dedicated Updates, Help, and Statistics channels.
+- Big Feature: Teams: Customize your team with logos, names, tags, languages, Discord links, and custom variables.
+- Big Feature: Teams: Teams can now keep Markdown guidelines with edit history, author details, and protection against overwriting someone else's changes.
+- Big Feature: Timeline: Manual admin actions and Serversay/Adminsay messages now appear in player history, with related commands grouped together to keep things readable.
+- Big Feature: Wanted: Add multiple players at once, see results for each one, retry failed entries, and check where entries came from.
+- Big Feature: Evidence: New review queue for evidence involving players who aren't already Wanted.
+- Bugfix: Core - Game State: Players and servers no longer linger in live tracking after leaving a server, closing the game, or losing Core connectivity.
+- Bugfix: Servers: Fixed an issue that could interrupt server sync after authentication expired.
+- Bugfix: Dashboard: Fixed an issue that could make dashboards take far too long to load.
+- Bugfix: Evidence: Fixed evidence files sometimes failing to load after a restart.
+- Bugfix: Player Archive: Browsing no longer needs to count the entire player database. Searches still return exact totals and support pagination.
+- Bugfix: Moderation: Added safeguards against banning or kicking yourself, duplicate bans, and conflicting queued bans.
+- Bugfix: Dashboard: Corrected moderation, Wanted, message, and admin statistics, and improved presence updates.
+- Bugfix: Fixed an issue where Wanted system didn't atomic claim a ban, resulting in double-bans for different reasons, ie. wanted perma + low-level
+- Bugfix: Servers: Server rosters now show observed connection times, and player counts no longer get stuck after people leave.
+- Bugfix: Servers: Fixed duplicate listings caused by server name or slot changes, and started keeping previous server names.
+- Bugfix: Evidence: Improved video processing and fixed an AV1 encoding issue.
+- Bugfix: Rulesets: Interval rules are now spread out instead of firing all at once, and missed intervals won't replay in bulk.
+- Bugfix: Teams: Fixed members shifting around during refreshes and improved protection against losing unsaved changes.
+- Bugfix: Controls: Fixed checkboxes and radio buttons affecting nearby layouts, and improved sliders and date pickers.
+- Bugfix: Profiles: Improved defaults when creating or duplicating actions and commands. Zero-millisecond delays now work too.
+- Bugfix: Notes: Fixed submitted drafts sticking around after posting, and improved Discord-style formatting.
+- Bugfix: Player Search: Improved matching for unusual fonts, decorative characters, and older player names.
+- Feature: Rulesets: Trigger once now persists, with per-target cooldowns and safeguards against repeating actions when the result is uncertain.
+- Feature: Evidence: Uploads now show progress and let you retry individual files. You can navigate the app without losing progress while it's running.
+- Feature: App: Commands can now only be run on servers your team has claimed.
+- Feature: Evidence: Comments now support formatting, references, and clickable video timestamps.
+- Feature: Timeline: Evidence submissions and comments now appear in player history, with links to view them.
+- Feature: Evidence: Evidence now includes links to offenses, comment counts, and video playback views.
+- Feature: Evidence: Duplicate files are detected so existing evidence media can be reused.
+- Feature: Offenses: When unbanning a player, choose whether to keep the offense history or remove the offense too. You can also remove offenses separately.
+- Feature: Rulesets: You can now pause rulesets when needed.
+- Feature: Rulesets: Date and time settings are now timezone-aware, with saved ordering, rule counts, and better draft validation.
+- Feature: Discord: Use /sb-login to register or check your access without opening the desktop app.
+- Feature: Discord: /sb-config has been replaced by /sb-wizard, with settings that match the app.
+- Feature: Discord: Finding roles and channels is easier, with search, proper category ordering, and unavailable channels disabled.
+- Feature: Players: More ways to fill in missing player statistics, including automatic XP updates for players on the current server.
+- Feature: Player Links: Copy profile links that open a player directly in SpellBook from the web or Discord.
+- Feature: Player Search: When an older name matches your search, you'll see it next to the player's current name.
+- Feature: Dashboard: Charts are now interactive, with zoom and selectable data.
+- Feature: Servers: The server browser now detects game modes, supports TO/FFA/Duels filters, and lets you search by exact server ID.
+- Feature: Servers: Live ping is now displayed, and server sorting considers both ping and player count.
+- Feature: Servers: Players without a matched identity stay visible in live rosters. Profiles and moderation become available once they're identified.
+- Feature: Servers: Change the name shown in SpellBook through a dedicated dialog. Only editors on the owning team can rename it.
+- Feature: Player Archive: More filtering options, combined views, and last-active date filtering.
+- Feature: Timeline: Team joins, departures, and milestones in global admin/activity rankings now appear in history.
+- Feature: Timeline: Server visits now show population, ping, and estimated connection time.
+- Feature: Adding someone to a team now requires them to accept it
+- Feature: You can now browse deleted notifications
+- Feature: Security improvement for teams and wanted system
+- Feature: Messages: Adminsay is now available in profile commands.
+- Feature: Messages: More message variables for online admins and players, rank, last login, playtime, time, and server capacity.
+- Feature: Messages: Clearer message previews, character counts, and a more useful guide to available variables.
+- Feature: Teams: Team logos now appear across dashboards and team lists.
+- Feature: Teams: Share team variables and clan identity across your claimed servers.
+- Feature: Forms: Missing or invalid fields are highlighted when saving a profile or ruleset, and focus moves straight to the first issue.
+- Feature: Profiles: SpellBook now warns you when an offense doesn't appear to match the wording of the selected action.
+- Feature: Profiles: Choose which actions appear in the current-server Actions menu.
+- Feature: Rulesets: Clearer information on who each rule affects, plus warnings about repeated messages and player actions.
+- Feature: Accounts: New admins can provide their PlayFab ID before approval.
+- Feature: Accounts: Jump straight to your player profile from your account.
+- Feature: Help: New Help and FAQ sections with onboarding, changelogs, and log-sharing instructions.
+- Feature: Installation: SpellBook now detects installed Steam and Epic editions and lists them in the tray.
+- Feature: Guides: New public guide with installation steps, screenshots, and videos. Unfinished sections are clearly marked.
+- Feature: Downloads: The latest stable installer now has one download link, with browser handoff pages for app links and Discord callbacks.
+- Feature: Players: Profile visit counts and clearer labels for SpellBook admins, creators, and teammates.
+- Feature: Servers: Estimated server locations and more technical details are now available.
+- Feature: Discord: /sb-info now includes links to the download, website, Discord, and guide.
+- Feature: Discord - Permissions: Help now shows who can use each command.
+- Feature: Navigation: Back now returns to the page you came from when possible, rather than always following the menu structure.
+- Feature: Core - AFK: Players are now marked AFK after 25 seconds.
+- Feature: Core - Sentinel: Sentinel Mode now automatically turns off after one minute.
+- Feature: Notifications: Hover over a notification for half a second to mark it as read. Notifications you manually mark unread stay unread, and longer text is easier to read.
+- Change: Core - Commands: Improved focus, keyboard, and mouse handling so SpellBook interrupts you less.
+- Change: Core - Commands: Commands you trigger now take priority over background tasks and have more time to complete.
+- Change: Core - Performance: Improved Core's memory handling.
+- Change: Dashboard: Improved refreshing, retries, and error handling.
+- Change: Player Search: Results now put more emphasis on recent activity, XP, and profile visits.
+- Change: Players: Wanted, ban, and recent-offense indicators are now easier to understand.
+- Change: Profiles: Clearer ban-duration settings and command summaries. Kicks no longer show irrelevant duration controls.
+- Change: Profiles: Renamed Offenses to Local Offenses.
+- Change: Wanted: Cleaner tabs, newest-first sorting, and confirmation before removing or reverting entries.
+- Change: Teams: Team ownership settings have moved into Settings. Deleting a team now requires the owner and a typed confirmation.
+- Change: Navigation: My teams now lives in the main menu, with badges for pending requests.
+- Change: Discord: Configured ban actions now use /sb-action. Dedicated /sb-ban commands remain disabled.
+- Change: Accounts: Display names are used consistently, with Discord usernames as a fallback. Display names must be at least three characters.
+- Change: Credits: Added animated credits.
+- Change: Analysis: Removed the unfinished Analysis page and its navigation entry
+
+## 3.0.2
+
+- Big Feature: Website: Our new SpellBook website is live! Check it out at chivalry2.dev.
+- Big Feature: Timeline: Player profiles now include a history of notes, moderation, Wanted changes, and server visits. Older entries load as needed.
+- Big Feature: Evidence: You can now submit screenshots and video clips up to one minute long.
+- Big Feature: Discord: Take actions, unban players, send server messages, and manage Wanted entries directly from Discord, with public/private options, status updates, and cancellation where supported.
+- Big Feature: Rulesets: Create rules that run profile actions on a schedule or when certain conditions are met.
+- Big Feature: Servers: New server dashboards show population graphs, moderation stats, ownership, live player counts, and connected admins.
+- Big Feature: Actions: Action requests, rulesets, and Wanted actions now run through one system, with saved runs and results.
+- Big Feature: Core - Servers: Live server and player tracking has been rebuilt to keep the app, dashboards, and Discord better in sync.
+- Big Feature: Dashboard: A refreshed dashboard with Global, Your teams, and You views, plus time filters.
+- Big Feature: Action Requests: Track requests from start to finish with statuses, details, expiry times, history, notifications, cancellation, and retries.
+- Big Feature: Player Search: Search can now use an optional index, match word prefixes, and fall back to fuzzy matching when an exact search comes up empty.
+- Big Feature: Discord - Permissions: Members with the configured Discord role can use supported player lookups without a SpellBook account. They'll only see public information.
+- Big Feature: Profiles: Repeat offenses can now lead to progressively longer bans.
+- Big Feature: Evidence: Browse screenshots and videos in galleries on player and Wanted profiles.
+- Big Feature: Evidence: Share evidence with public links, complete with image and video previews.
+- Big Feature: Discord: Link your Discord server and configure SpellBook roles and dedicated Updates, Help, and Statistics channels.
+- Big Feature: Teams: Customize your team with logos, names, tags, languages, Discord links, and custom variables.
+- Big Feature: Teams: Teams can now keep Markdown guidelines with edit history, author details, and protection against overwriting someone else's changes.
+- Big Feature: Timeline: Manual admin actions and Serversay/Adminsay messages now appear in player history, with related commands grouped together to keep things readable.
+- Big Feature: Wanted: Add multiple players at once, see results for each one, retry failed entries, and check where entries came from.
+- Big Feature: Evidence: New review queue for evidence involving players who aren't already Wanted.
+- Bugfix: Core - Game State: Players and servers no longer linger in live tracking after leaving a server, closing the game, or losing Core connectivity.
+- Bugfix: Servers: Fixed an issue that could interrupt server sync after authentication expired.
+- Bugfix: Dashboard: Fixed an issue that could make dashboards take far too long to load.
+- Bugfix: Evidence: Fixed evidence files sometimes failing to load after a restart.
+- Bugfix: Player Archive: Browsing no longer needs to count the entire player database. Searches still return exact totals and support pagination.
+- Bugfix: Moderation: Added safeguards against banning or kicking yourself, duplicate bans, and conflicting queued bans.
+- Bugfix: Dashboard: Corrected moderation, Wanted, message, and admin statistics, and improved presence updates.
+- Bugfix: Fixed an issue where Wanted system didn't atomic claim a ban, resulting in double-bans for different reasons, ie. wanted perma + low-level
+- Bugfix: Servers: Server rosters now show observed connection times, and player counts no longer get stuck after people leave.
+- Bugfix: Servers: Fixed duplicate listings caused by server name or slot changes, and started keeping previous server names.
+- Bugfix: Evidence: Improved video processing and fixed an AV1 encoding issue.
+- Bugfix: Rulesets: Interval rules are now spread out instead of firing all at once, and missed intervals won't replay in bulk.
+- Bugfix: Teams: Fixed members shifting around during refreshes and improved protection against losing unsaved changes.
+- Bugfix: Controls: Fixed checkboxes and radio buttons affecting nearby layouts, and improved sliders and date pickers.
+- Bugfix: Profiles: Improved defaults when creating or duplicating actions and commands. Zero-millisecond delays now work too.
+- Bugfix: Notes: Fixed submitted drafts sticking around after posting, and improved Discord-style formatting.
+- Bugfix: Player Search: Improved matching for unusual fonts, decorative characters, and older player names.
+- Feature: Rulesets: Trigger once now persists, with per-target cooldowns and safeguards against repeating actions when the result is uncertain.
+- Feature: Evidence: Uploads now show progress and let you retry individual files. You can navigate the app without losing progress while it's running.
+- Feature: App: Commands can now only be run on servers your team has claimed.
+- Feature: Evidence: Comments now support formatting, references, and clickable video timestamps.
+- Feature: Timeline: Evidence submissions and comments now appear in player history, with links to view them.
+- Feature: Evidence: Evidence now includes links to offenses, comment counts, and video playback views.
+- Feature: Evidence: Duplicate files are detected so existing evidence media can be reused.
+- Feature: Offenses: When unbanning a player, choose whether to keep the offense history or remove the offense too. You can also remove offenses separately.
+- Feature: Rulesets: You can now pause rulesets when needed.
+- Feature: Rulesets: Date and time settings are now timezone-aware, with saved ordering, rule counts, and better draft validation.
+- Feature: Discord: Use /sb-login to register or check your access without opening the desktop app.
+- Feature: Discord: /sb-config has been replaced by /sb-wizard, with settings that match the app.
+- Feature: Discord: Finding roles and channels is easier, with search, proper category ordering, and unavailable channels disabled.
+- Feature: Players: More ways to fill in missing player statistics, including automatic XP updates for players on the current server.
+- Feature: Player Links: Copy profile links that open a player directly in SpellBook from the web or Discord.
+- Feature: Player Search: When an older name matches your search, you'll see it next to the player's current name.
+- Feature: Dashboard: Charts are now interactive, with zoom and selectable data.
+- Feature: Servers: The server browser now detects game modes, supports TO/FFA/Duels filters, and lets you search by exact server ID.
+- Feature: Servers: Live ping is now displayed, and server sorting considers both ping and player count.
+- Feature: Servers: Players without a matched identity stay visible in live rosters. Profiles and moderation become available once they're identified.
+- Feature: Servers: Change the name shown in SpellBook through a dedicated dialog. Only editors on the owning team can rename it.
+- Feature: Player Archive: More filtering options, combined views, and last-active date filtering.
+- Feature: Timeline: Team joins, departures, and milestones in global admin/activity rankings now appear in history.
+- Feature: Timeline: Server visits now show population, ping, and estimated connection time.
+- Feature: Adding someone to a team now requires them to accept it
+- Feature: You can now browse deleted notifications
+- Feature: Security improvement for teams and wanted system
+- Feature: Messages: Adminsay is now available in profile commands.
+- Feature: Messages: More message variables for online admins and players, rank, last login, playtime, time, and server capacity.
+- Feature: Messages: Clearer message previews, character counts, and a more useful guide to available variables.
+- Feature: Teams: Team logos now appear across dashboards and team lists.
+- Feature: Teams: Share team variables and clan identity across your claimed servers.
+- Feature: Forms: Missing or invalid fields are highlighted when saving a profile or ruleset, and focus moves straight to the first issue.
+- Feature: Profiles: SpellBook now warns you when an offense doesn't appear to match the wording of the selected action.
+- Feature: Profiles: Choose which actions appear in the current-server Actions menu.
+- Feature: Rulesets: Clearer information on who each rule affects, plus warnings about repeated messages and player actions.
+- Feature: Accounts: New admins can provide their PlayFab ID before approval.
+- Feature: Accounts: Jump straight to your player profile from your account.
+- Feature: Help: New Help and FAQ sections with onboarding, changelogs, and log-sharing instructions.
+- Feature: Installation: SpellBook now detects installed Steam and Epic editions and lists them in the tray.
+- Feature: Guides: New public guide with installation steps, screenshots, and videos. Unfinished sections are clearly marked.
+- Feature: Downloads: The latest stable installer now has one download link, with browser handoff pages for app links and Discord callbacks.
+- Feature: Players: Profile visit counts and clearer labels for SpellBook admins, creators, and teammates.
+- Feature: Servers: Estimated server locations and more technical details are now available.
+- Feature: Discord: /sb-info now includes links to the download, website, Discord, and guide.
+- Feature: Discord - Permissions: Help now shows who can use each command.
+- Feature: Navigation: Back now returns to the page you came from when possible, rather than always following the menu structure.
+- Feature: Core - AFK: Players are now marked AFK after 25 seconds.
+- Feature: Core - Sentinel: Sentinel Mode now automatically turns off after one minute.
+- Feature: Notifications: Hover over a notification for half a second to mark it as read. Notifications you manually mark unread stay unread, and longer text is easier to read.
+- Change: Core - Commands: Improved focus, keyboard, and mouse handling so SpellBook interrupts you less.
+- Change: Core - Commands: Commands you trigger now take priority over background tasks and have more time to complete.
+- Change: Core - Performance: Improved Core's memory handling.
+- Change: Dashboard: Improved refreshing, retries, and error handling.
+- Change: Player Search: Results now put more emphasis on recent activity, XP, and profile visits.
+- Change: Players: Wanted, ban, and recent-offense indicators are now easier to understand.
+- Change: Profiles: Clearer ban-duration settings and command summaries. Kicks no longer show irrelevant duration controls.
+- Change: Profiles: Renamed Offenses to Local Offenses.
+- Change: Wanted: Cleaner tabs, newest-first sorting, and confirmation before removing or reverting entries.
+- Change: Teams: Team ownership settings have moved into Settings. Deleting a team now requires the owner and a typed confirmation.
+- Change: Navigation: My teams now lives in the main menu, with badges for pending requests.
+- Change: Discord: Configured ban actions now use /sb-action. Dedicated /sb-ban commands remain disabled.
+- Change: Accounts: Display names are used consistently, with Discord usernames as a fallback. Display names must be at least three characters.
+- Change: Credits: Added animated credits.
+- Change: Analysis: Removed the unfinished Analysis page and its navigation entry
+
+## 3.1.0
+
+- Feature: Landing page now has a new section for Hivemind
+- Bugfix: Various bug fixes on the landing page
+- Bugfix: Hotfix for Wanted system to make it stop spamming
+
+## 3.1.1
+
+- Improved SB-wizard to save per step
+
+## 3.2.0
+
+- Updated search to actually work and not consume 180 GB RAM
+- Optimized search to filter uninteresting ancient accounts
+- Added more guides!
+- General bugfixes
+
+## 3.2.1
+
+- Fixed release validation.
+
+## 3.3.0
+
+- Fixed bugs
+
+## 3.4.0
+
+- Feature: Brand new menu sidebar!
+- Feature: Prepared page for player forensics
+- Feature: Prepared page for request actions
+- Feature: SpellBook now checks an user's rank if they are too close to ruleset logic conditions to ensure no mis-fires
+- Change: Hid pointless notifications and improved the text on others
+- Change: Removed padding from app layout, giving SpellBook more room
+- Improvement: Improved page traversal logic
+- Improvement: Improved DB cache, thus reducing RAM needs by 45%
+- Improvement: Improved search speed from 700ms to 70-120ms
+- Improvement: Reduced the number of component for avatars
+- Improvement: General UI tweaks & fixes around on the overlay app
+
+## 3.4.1
+
+- Bug fix
+
+## 3.4.2
+
+- Fixed issues with CI pipeline
+
+## 3.5.0
+
+- Fixed core not starting up in time
+
+## 3.5.1
+
+- Updated the UX for keybind
+- Added confetti so you will feel good about setting the keybind ♥
+
+## 3.6.0
+
+- Feature: Action Events are now added
+- Change: We're now tracking where actions originate from
+- Change: Added more personalization for teams and their avatars
+- Bug: Certain endpoints had long load time due to cache miss
+- Bug: Wanted actions were missing from player timeline, these have been added
+- Optimization: Improved caching for certain endpoints
+- Security: Updated Node.js and PHP for Bot and API, as well as package update for clients
+- Optimization: Tweaked console manipulation to ensure commands were as fast as they can be, but still reliable
+- Improvement: Fixed the confusing user experience for setting keybinds
+
+## 3.7.0
+
+- Big feature: Version 2 of AI powered player detection. Try pressing F4 next time you see a player nameplate!
+- Improvement: Quality of life improvements to command execution
+- Improvement: Rewrote vague non-helpful error messages
+
+## 3.7.1
+
+- Fix: update vulnerable dependencies
+
+## 3.7.2
+
+- Updated tests to reflect new console values
