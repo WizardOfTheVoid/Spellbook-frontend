@@ -1,0 +1,198 @@
+using CoreHost.Actions;
+using CoreHost.Commands;
+using CoreHost.Input;
+using CoreHost.Models;
+using CoreHost.Options;
+using CoreHost.Window;
+using Microsoft.Extensions.Options;
+using CoreHost.Debug;
+
+namespace CoreHost.Execution;
+
+public sealed class GameActionRuntime(GameWindows windows, InputActivityTracker input, KeyboardInput keyboard,
+    ConsoleCommandRunner console, KeyCommandRunner keys, IOptionsMonitor<CoreHostOptions> options, DebugJournal? journal = null) : IActionRuntime
+{
+    private AppTarget? activeApp;
+    private GameProcessInfo? activeGame, cleanupGame;
+    public void refresh() => windows.refresh();
+
+    public ExecutionEligibility canExecuteCommand(string priority = "normal")
+    {
+        if (console.layoutFault is not null) return new(false, "KEYBOARD_LAYOUT_RESTORE_FAILED");
+        if (!windows.isRunning("app") || !windows.isRunning("game")) return new(false, "PROCESS_NOT_RUNNING", true);
+        if (!windows.isFocused("app") && !windows.isFocused("game")) return new(false, "WINDOW_NOT_FOREGROUND");
+        if (!windows.isReady(windows.isFocused("game") ? "game" : "app")) return new(false, "WINDOW_NOT_READY");
+        if (inputFocusBlocks(priority)) return new(false, "TEXT_INPUT_ACTIVE");
+        var gateMs = options.CurrentValue.gateMs(priority);
+        var bypass = priority == "high" && gateMs == 0;
+        var physical = input.snapshot(gateMs, options.CurrentValue.Input.ChatCooldownMs);
+        if (!bypass && !physical.Available) return new(false, "INPUT_MONITOR_UNAVAILABLE");
+        if (!bypass && physical.KeyboardActive) return new(false, "KEYBOARD_ACTIVE");
+        if (!bypass && physical.MouseActive) return new(false, "MOUSE_ACTIVE");
+        if (!bypass && physical.IsChatting) return new(false, "CHAT_ACTIVE");
+        if (!bypass && physical.KeyboardUsedMouseVisibleCooldownRemainingMs > 0) return new(false, "KeyboardUsedMouseVisible");
+        return new(true);
+    }
+
+    public ExecutionEligibility eligibility(CoreActionRequest action)
+    {
+        if (!windows.matches(action.App)) return new(false, "APP_SESSION_CHANGED", true);
+        var decision = canExecuteCommand(action.Priority);
+        var minimumIdle = action.Commands.Max(command => command.MinimumIdleMs ?? 0);
+        if (decision.Allowed && action.Priority != "high" && minimumIdle > input.snapshot(0).IdleMs)
+            return new(false, "MINIMUM_IDLE_NOT_REACHED");
+        return decision;
+    }
+
+    public async Task<OperationResult> prepare(QueuedAction action, CancellationToken token)
+    {
+        discardChangedConsole();
+        action.Game ??= windows.gameProcess;
+        if (action.Game is null) return OperationResult.Failure("WINDOW_NOT_FOUND", "The game window is not available.");
+        if (!windows.matchesGame(action.Game)) return OperationResult.Failure("GAME_SESSION_CHANGED", "The Action's game process or window changed.");
+        if (inputFocusBlocks(action.Request.Priority)) return OperationResult.Failure("TEXT_INPUT_ACTIVE", "An overlay input has focus.");
+        activeApp = action.Request.App;
+        activeGame = action.Game;
+        var released = keyboard.releaseAll();
+        if (!released.Ok) return released;
+        input.WillPerformAppRoundTrip = windows.isFocused("app");
+        input.SuppressMouseClicks = input.WillPerformAppRoundTrip && action.Request.Author == "user";
+        journal?.phase("focus_game");
+        var result = await windows.focus("game", token);
+        if (result.Ok && console.needsCleanup)
+        {
+            await console.consoleDiscard(action.Game, () => {
+                if (!windows.matchesGame(action.Game) || !windows.isReady("game")) throw new InputInterruptedException("WINDOW_NOT_READY");
+            }, token);
+            cleanupGame = null;
+        }
+        return result;
+    }
+
+    public async Task<CommandOutcome> execute(QueuedAction action, CoreCommand command, Action submitted, CancellationToken token)
+    {
+        var sent = false;
+        var isListPlayers = command.Type == "console" && string.Equals(command.Command, "ListPlayers", StringComparison.OrdinalIgnoreCase);
+        string? interrupt = null;
+        string? outputInterrupt = null;
+        using var watchStop = new CancellationTokenSource();
+        using var execution = CancellationTokenSource.CreateLinkedTokenSource(token);
+        using var listPlayersOutput = isListPlayers ? CancellationTokenSource.CreateLinkedTokenSource(token) : null;
+        void checkEligibility()
+        {
+            if (!windows.matchesGame(action.Game)) throw new InputInterruptedException("GAME_SESSION_CHANGED");
+            if (isListPlayers && Volatile.Read(ref sent))
+            {
+                if (!windows.matches(action.Request.App) || !windows.isRunning("app")) throw new InputInterruptedException("APP_SESSION_CHANGED");
+                return;
+            }
+            var state = eligibility(action.Request);
+            if (!state.Allowed) throw new InputInterruptedException(state.Reason!);
+            if (!windows.isReady("game")) throw new InputInterruptedException("WINDOW_NOT_READY");
+        }
+        void check() { execution.Token.ThrowIfCancellationRequested(); checkEligibility(); }
+        string? interruption() => isListPlayers && Volatile.Read(ref sent) ? outputInterrupt : interrupt;
+        async Task watch()
+        {
+            try
+            {
+                while (true)
+                {
+                    await Task.Delay(options.CurrentValue.Queue.RecheckMs, watchStop.Token);
+                    try { checkEligibility(); }
+                    catch (InputInterruptedException exception)
+                    {
+                        var sessionChanged = exception.Message is "GAME_SESSION_CHANGED" or "APP_SESSION_CHANGED";
+                        if (isListPlayers && Volatile.Read(ref sent) && !sessionChanged) continue;
+                        interrupt = exception.Message;
+                        execution.Cancel();
+                        if (sessionChanged) { outputInterrupt = exception.Message; listPlayersOutput?.Cancel(); }
+                        if (!isListPlayers || sessionChanged) return;
+                    }
+                }
+            }
+            catch (OperationCanceledException) { }
+        }
+        var monitor = watch();
+        try
+        {
+            check();
+            if (!action.DelayComplete)
+            {
+                if (action.DelayRemainingMs < 0) action.DelayRemainingMs = command.DelayMs;
+                if (action.DelayRemainingMs > 0) journal?.phase("delay");
+                var started = Environment.TickCount64;
+                try { await Task.Delay(TimeSpan.FromMilliseconds(action.DelayRemainingMs), execution.Token); action.DelayComplete = true; }
+                finally { action.DelayRemainingMs = Math.Max(0, action.DelayRemainingMs - (Environment.TickCount64 - started)); }
+            }
+            void mark() { Volatile.Write(ref sent, true); submitted(); }
+            if (command.Type == "console") cleanupGame = action.Game;
+            var outcome = command.Type == "console"
+                ? await console.run(command, action.Game!, check, mark, execution.Token, action.Warnings.Add,
+                    new(action.Request.Id, action.Cursor, action.Request.Author, action.Request.App.ProcessId, action.Game!.Id), listPlayersOutput?.Token)
+                : await keys.run(action, command, check, mark, execution.Token);
+            if (isListPlayers && outputInterrupt is not null)
+                return outcome with { ErrorCode = outputInterrupt, Paused = false };
+            if (outcome.ErrorCode == "COMMAND_CANCELLED" && interruption() is { } reason)
+                return outcome with { ErrorCode = reason, Paused = reason != "GAME_SESSION_CHANGED" };
+            return outcome;
+        }
+        catch (InputInterruptedException exception) { return new(sent, ErrorCode: exception.Message, Paused: exception.Message != "GAME_SESSION_CHANGED"); }
+        catch (OperationCanceledException) when (interruption() is { } reason) { return new(sent, ErrorCode: reason, Paused: reason != "GAME_SESSION_CHANGED"); }
+        catch (OperationCanceledException) when (!action.Cancelled && Environment.TickCount64 < action.Deadline)
+        { return new(sent, ErrorCode: "COMMAND_TIMEOUT", ErrorMessage: "Command execution timed out."); }
+        finally { watchStop.Cancel(); await monitor; }
+    }
+
+    public async Task<IReadOnlyList<string>> cleanup(CancellationToken token)
+    {
+        try
+        {
+            var warnings = new List<string>();
+            var released = keyboard.releaseAll();
+            if (!released.Ok) warnings.Add(released.ErrorMessage!);
+            discardChangedConsole();
+            if (console.needsCleanup)
+            {
+                if (windows.isReady("game"))
+                {
+                    try { await console.consoleDiscard(cleanupGame!, () => {
+                        if (!windows.matchesGame(cleanupGame) || !windows.isReady("game")) throw new InputInterruptedException("WINDOW_NOT_READY");
+                    }, token); cleanupGame = null; }
+                    catch (Exception exception) { warnings.Add($"CONSOLE_CLEANUP_FAILED: {exception.Message}"); }
+                }
+                else warnings.Add("CONSOLE_CLEANUP_DEFERRED");
+            }
+            if (console.layoutFault is null && input.WillPerformAppRoundTrip && activeApp is not null && windows.matches(activeApp) && windows.matchesGame(activeGame) && windows.isFocused("game"))
+            {
+                try
+                {
+                    journal?.phase("restore_app");
+                    var restored = await windows.focus("app", token);
+                    if (!restored.Ok) warnings.Add(restored.ErrorCode!);
+                }
+                catch (Exception exception) { warnings.Add($"FOREGROUND_RESTORE_FAILED: {exception.Message}"); }
+            }
+            return warnings;
+        }
+        finally
+        {
+            input.SuppressMouseClicks = false;
+            input.WillPerformAppRoundTrip = false;
+            activeApp = null;
+            activeGame = null;
+        }
+    }
+
+    private void discardChangedConsole()
+    {
+        if (!console.needsCleanup || !windows.matchesGame(cleanupGame))
+        {
+            console.closed();
+            cleanupGame = null;
+        }
+    }
+
+    private bool inputFocusBlocks(string priority) => priority != "high" && windows.hasFocusedInput &&
+        (windows.isFocused("app") || input.WillPerformAppRoundTrip);
+}
