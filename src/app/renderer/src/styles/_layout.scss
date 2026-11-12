@@ -1,0 +1,206 @@
+// Outer app frame
+.overlay-shell {
+	--quick-actions-offset-x: calc((var(--nav-width) - var(--active-sidebar-width)) / 2);
+	--surface-radius: var(--radius-xl-none, 0px);
+
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	opacity: 0;
+	display: grid;
+	grid-template-columns: var(--nav-width, 112px) minmax(0px, 1fr) var(--active-sidebar-width);
+	margin: 0;
+	padding: calc(var(--gutter) * 0);
+	border-radius: 0;
+	overflow: hidden;
+
+	transition:
+		opacity 800ms var(--easing),
+		grid-template-columns var(--sidebar-motion-duration) var(--motion-ease);
+
+	&.overlay-shell--visible {
+		opacity: 1;
+	}
+
+	// Menu bar and content sidebar frames
+	.menu-bar,
+	.content-sidebar {
+		position: relative;
+		min-width: 0;
+		min-height: 0;
+		border-radius: var(--surface-radius);
+	}
+
+	.menu-bar {
+		z-index: var(--z-panel);
+		width: 100%;
+		height: 100%;
+	}
+
+	.content-sidebar {
+		z-index: 2;
+		width: auto;
+		height: auto;
+	}
+
+	// Quick Actions floats between the menu and sidebar ^_^
+	.quick-actions {
+		position: fixed;
+		top: calc(var(--gutter));
+		left: 50vw;
+		z-index: 36;
+		width: auto;
+		height: auto;
+		margin: 0;
+		padding: calc(var(--gutter) * 0.25);
+		border-radius: var(--radius-xl);
+		transform: translateX(calc(-50% + var(--quick-actions-offset-x)));
+		transition: transform var(--sidebar-motion-duration) var(--motion-ease);
+	}
+
+	.maintenance-admin-notice {
+		position: relative;
+		z-index: 2;
+		padding: var(--gutter-lg);
+		min-width: 0;
+		overflow: auto;
+
+		p {
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+
+		button {
+			display: block;
+			margin-top: var(--gutter-md);
+		}
+	}
+}
+
+.app-bg {
+	position: absolute;
+	inset: 0;
+	z-index: var(--z-backdrop);
+	width: 100%;
+	height: 100%;
+	border: 0;
+	border-radius: 0;
+	background: var(--color-dark-primary);
+	opacity: 0.05;
+	cursor: default;
+}
+
+// Scrollbar, styled with CSS variables so that it can be themed.
+// Chromium ignores ::-webkit-scrollbar rules once scrollbar-width/color are set,
+// so neither of those standard properties may be declared here.
+*::-webkit-scrollbar {
+	width: 12px;
+	height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+	background: var(--color-scrollbar-track);
+}
+
+// The thumb cannot be narrower than the scrollbar, so inset it with a
+// transparent border that the background is clipped away from.
+*::-webkit-scrollbar-thumb {
+	background-color: var(--color-scrollbar-thumb);
+	background-clip: content-box;
+	border: 3px solid transparent;
+	border-radius: 9999px;
+}
+
+// Animations
+.panel-view:not([hidden]) {
+	animation: panel-enter var(--motion-base) var(--motion-ease);
+}
+
+@keyframes panel-enter {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Drill-downs inside a panel slide in sideways instead. */
+.panel-view.panel-view--sub:not([hidden]),
+.panel-subview {
+	animation: subview-enter var(--motion-base) var(--motion-ease);
+}
+
+@keyframes subview-enter {
+	from {
+		opacity: 0;
+		transform: translateX(20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.overlay-shell--dashboard,
+.overlay-shell:has(.player-forensics),
+.overlay-shell:has(.admin-panel--telemetry),
+.overlay-shell:has(.admin-panel--components),
+.overlay-shell:has(.admin-panel--user) {
+	--active-sidebar-width: calc(var(--sidebar-width) * 1.5);
+}
+
+.overlay-shell--dashboard:has(.dashboard),
+.overlay-shell:has(.player-forensics),
+.overlay-shell:has(.admin-panel--telemetry),
+.overlay-shell:has(.admin-panel--user) {
+	--active-sidebar-width: min(calc(var(--sidebar-width) * 1.5), max(320px, calc(100vw - var(--nav-width) - var(--gutter-lg) * 2 - 500px)), calc(100vw - var(--nav-width) - var(--gutter-lg) * 2 - 24px));
+}
+
+.overlay-shell--servers,
+.overlay-shell--teams {
+	--active-sidebar-width: calc(var(--sidebar-width) * 1.25);
+}
+
+.overlay-shell:has(.action-events) {
+	--active-sidebar-width: calc(var(--sidebar-width) * 1.2);
+}
+
+.overlay-shell.overlay-shell--menuBar,
+.overlay-shell.overlay-shell--maintenance {
+	--nav-width: 313px;
+	--menu-panel-preferred-width: var(--sidebar-width);
+	--menu-panel-max-width: max(0px, calc(100vw - var(--nav-width) - var(--gutter) * 4 - 24px));
+	--active-sidebar-width: min(var(--menu-panel-preferred-width), max(320px, calc(100vw - var(--nav-width) - var(--gutter) * 4 - 500px)), var(--menu-panel-max-width));
+
+	&.overlay-shell--dashboard,
+	&:has(.player-forensics),
+	&:has(.admin-panel--telemetry),
+	&:has(.admin-panel--components),
+	&:has(.admin-panel--user) {
+		--menu-panel-preferred-width: calc(var(--sidebar-width) * 1.5);
+	}
+
+	&.overlay-shell--servers,
+	&.overlay-shell--teams {
+		--menu-panel-preferred-width: calc(var(--sidebar-width) * 1.25);
+	}
+
+	&:has(.action-events) {
+		--menu-panel-preferred-width: calc(var(--sidebar-width) * 1.2);
+	}
+
+	.quick-actions {
+		max-width: max(0px, calc(100vw - var(--nav-width) - var(--active-sidebar-width) - var(--gutter) * 4 - 24px));
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	@media (max-width: 1280px) {
+		--nav-width: 267px;
+	}
+}

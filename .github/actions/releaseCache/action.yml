@@ -1,0 +1,61 @@
+name: Restore release downloads
+description: Restore default-branch npm, NuGet and packaging downloads without caching build output
+outputs:
+  npm-key:
+    description: npm cache key
+    value: ${{ steps.settings.outputs.npm-key }}
+  npm-path:
+    description: npm cache path
+    value: ${{ steps.settings.outputs.npm-path }}
+  npm-hit:
+    description: Exact npm cache hit
+    value: ${{ steps.npm.outputs.cache-hit }}
+  nuget-key:
+    description: NuGet cache key
+    value: ${{ steps.settings.outputs.nuget-key }}
+  nuget-path:
+    description: NuGet cache path
+    value: ${{ steps.settings.outputs.nuget-path }}
+  nuget-hit:
+    description: Exact NuGet cache hit
+    value: ${{ steps.nuget.outputs.cache-hit }}
+  packaging-key:
+    description: Packaging tools cache key
+    value: ${{ steps.settings.outputs.packaging-key }}
+  packaging-path:
+    description: Packaging tools cache paths
+    value: ${{ steps.settings.outputs.packaging-path }}
+  packaging-hit:
+    description: Exact packaging cache hit
+    value: ${{ steps.packaging.outputs.cache-hit }}
+runs:
+  using: composite
+  steps:
+    - name: Configure download caches
+      id: settings
+      shell: pwsh
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        NUGET_DEPENDENCY_HASH: ${{ hashFiles('src/core/**/*.csproj', 'src/core/**/*.props', 'src/core/**/*.targets', 'src/core/**/packages.lock.json', '**/NuGet.Config', '**/nuget.config', '**/global.json') }}
+      run: node "$env:ACTION_PATH/../../../scripts/releaseCache/cacheSettings.mjs"
+    - name: Restore npm downloads
+      id: npm
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
+      with:
+        path: ${{ steps.settings.outputs.npm-path }}
+        key: ${{ steps.settings.outputs.npm-key }}
+        restore-keys: ${{ steps.settings.outputs.npm-prefix }}
+    - name: Restore NuGet packages
+      id: nuget
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
+      with:
+        path: ${{ steps.settings.outputs.nuget-path }}
+        key: ${{ steps.settings.outputs.nuget-key }}
+        restore-keys: ${{ steps.settings.outputs.nuget-prefix }}
+    - name: Restore Electron and Builder tools
+      id: packaging
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
+      with:
+        path: ${{ steps.settings.outputs.packaging-path }}
+        key: ${{ steps.settings.outputs.packaging-key }}
+        restore-keys: ${{ steps.settings.outputs.packaging-prefix }}

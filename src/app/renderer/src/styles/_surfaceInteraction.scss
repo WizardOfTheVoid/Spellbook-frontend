@@ -1,0 +1,19 @@
+@mixin surfaceInteraction($hoverBorder, $pressedBackground) {
+	transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
+
+	&:hover, &:active {
+		transition-duration: 0ms;
+	}
+
+	&:hover {
+		border-color: $hoverBorder;
+	}
+
+	&:active {
+		background-color: $pressedBackground;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+}
