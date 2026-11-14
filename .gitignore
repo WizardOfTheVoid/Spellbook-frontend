@@ -1,0 +1,24 @@
+node_modules/
+.env*
+!.env.example
+**/.env*
+!**/.env.example
+!**/.env-example
+.svelte-kit/
+out/
+/output/
+
+# Private development notes in any folder (case-insensitive)
+[Dd][Ee][Vv][Ee][Ll][Oo][Pp][Mm][Ee][Nn][Tt].[Mm][Dd]
+
+electron.vite.config.*.mjs
+release/
+dist/
+coverage/
+.artifacts/
+.temp/
+temp/
+logs/
+*.log
+[Bb]in/
+[Oo]bj/
